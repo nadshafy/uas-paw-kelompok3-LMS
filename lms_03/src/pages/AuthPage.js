@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BookOpen } from "lucide-react";
 import LoginForm from "../components/auth/LoginForm";
 import SignUpForm from "../components/auth/SignUpForm";
@@ -14,6 +14,21 @@ const AuthPage = () => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("userRole");
+
+    if (token && role) {
+      // Redirect to appropriate dashboard
+      if (role === "librarian") {
+        window.location.href = "/dashboard-librarian";
+      } else {
+        window.location.href = "/dashboard-member";
+      }
+    }
+  }, []);
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -49,30 +64,52 @@ const AuthPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
 
-    // TODO: Ganti dengan API call ke backend Python Pyramid
-    // Example:
-    // const endpoint = currentPage === 'login' ? '/api/login' : '/api/register';
-    // const response = await fetch(endpoint, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(formData)
-    // });
+    try {
+      // Simulate API call
+      // TODO: Replace with actual API endpoint
+      // const endpoint = currentPage === 'login'
+      //   ? 'http://your-domain.web.id/api/login'
+      //   : 'http://your-domain.web.id/api/register';
 
-    setTimeout(() => {
-      console.log("Form submitted:", formData);
-      alert(`${currentPage === "login" ? "Login" : "Sign Up"} successful!`);
+      // const response = await fetch(endpoint, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     email: formData.email,
+      //     password: formData.password,
+      //     name: formData.name,
+      //     role: formData.role
+      //   })
+      // });
 
-      // TODO: Save token and redirect
-      // localStorage.setItem('token', data.token);
-      // window.location.href = '/dashboard';
+      // const data = await response.json();
 
+      // Simulate successful response
+      setTimeout(() => {
+        // Save to localStorage
+        localStorage.setItem("token", "dummy-token-" + Date.now());
+        localStorage.setItem("userName", formData.name || "User");
+        localStorage.setItem("userEmail", formData.email);
+        localStorage.setItem("userRole", formData.role);
+
+        // Redirect based on role
+        if (formData.role === "librarian") {
+          window.location.href = "/dashboard-librarian";
+        } else {
+          window.location.href = "/dashboard-member";
+        }
+
+        setIsLoading(false);
+      }, 1500);
+    } catch (error) {
+      alert("Error: " + error.message);
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -98,12 +135,12 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black-500 via-black-600 to-black-800 flex items-center justify-center p-5">
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 via-purple-600 to-purple-800 flex items-center justify-center p-5">
       <div className="w-full max-w-md">
         {/* Logo & Title */}
-        <div className="text-center mb-8 text-black">
+        <div className="text-center mb-8 text-white">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4 shadow-2xl">
-            <BookOpen size={40} className="text-red-600" />
+            <BookOpen size={40} className="text-purple-600" />
           </div>
           <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
             Library System
@@ -160,8 +197,8 @@ const AuthPage = () => {
         </div>
 
         {/* Footer */}
-        <p className="text-center mt-6 text-black text-sm opacity-90">
-          UAS PAW - Library Management System
+        <p className="text-center mt-6 text-white text-sm opacity-90">
+          Made with ❤️ for UAS PAW - Library Management System
         </p>
       </div>
     </div>
