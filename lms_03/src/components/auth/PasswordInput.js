@@ -34,7 +34,7 @@ const PasswordInput = ({
             error
               ? "border-red-500"
               : focused
-              ? "border-purple-500"
+              ? "border-black-"
               : "border-gray-200"
           }`}
         />

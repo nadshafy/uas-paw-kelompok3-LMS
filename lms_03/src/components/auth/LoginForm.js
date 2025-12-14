@@ -13,13 +13,13 @@ const LoginForm = ({
   return (
     <div>
       <InputField
-        label="Email Address"
+        label="Email"
         type="email"
         name="email"
         value={formData.email}
         onChange={onInputChange}
         error={errors.email}
-        placeholder="Enter your email"
+        placeholder="Masukkan email"
         icon={Mail}
       />
 
@@ -29,7 +29,7 @@ const LoginForm = ({
         value={formData.password}
         onChange={onInputChange}
         error={errors.password}
-        placeholder="Enter your password"
+        placeholder="Masukkan password"
       />
 
       <div className="text-right mb-6">
@@ -39,7 +39,7 @@ const LoginForm = ({
             e.preventDefault();
             alert("Password reset feature coming soon!");
           }}
-          className="text-#00000-600 text-xs font-medium hover:text-purple-700 transition-colors"
+          className="text-#00000-600 text-xs font-medium hover:text-red-700 transition-colors"
         >
           Forgot Password?
         </a>
@@ -51,7 +51,7 @@ const LoginForm = ({
         className={`w-full py-4 rounded-xl text-base font-semibold text-white transition-all shadow-lg ${
           isLoading
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-xl hover:-translate-y-0.5"
+            : "bg-gradient-to-r from-black to-black hover:shadow-xl hover:-translate-y-0.5"
         }`}
       >
         {isLoading ? "Please wait..." : "Login"}

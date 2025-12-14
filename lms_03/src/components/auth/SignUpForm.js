@@ -61,7 +61,7 @@ const SignUpForm = ({
         className={`w-full py-4 rounded-xl text-base font-semibold text-white transition-all shadow-lg mt-2 ${
           isLoading
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-gradient-to-r from-purple-500 to-purple-700 hover:shadow-xl hover:-translate-y-0.5"
+            : "bg-gradient-to-r from-black to-black hover:shadow-xl hover:-translate-y-0.5"
         }`}
       >
         {isLoading ? "Please wait..." : "Create Account"}

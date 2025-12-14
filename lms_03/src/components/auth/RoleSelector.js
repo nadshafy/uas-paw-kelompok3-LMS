@@ -10,7 +10,7 @@ const RoleSelector = ({ value, onChange }) => {
         <label
           className={`flex items-center p-3 border-2 rounded-xl cursor-pointer transition-all ${
             value === "member"
-              ? "border-purple-500 bg-purple-50"
+              ? "border-red-500 bg-red-50"
               : "border-gray-200 bg-white hover:border-gray-300"
           }`}
         >
@@ -20,7 +20,7 @@ const RoleSelector = ({ value, onChange }) => {
             value="member"
             checked={value === "member"}
             onChange={onChange}
-            className="mr-2 accent-purple-500"
+            className="mr-2 accent-black-"
           />
           <span className="text-sm font-medium text-gray-700">Member</span>
         </label>
@@ -28,7 +28,7 @@ const RoleSelector = ({ value, onChange }) => {
         <label
           className={`flex items-center p-3 border-2 rounded-xl cursor-pointer transition-all ${
             value === "librarian"
-              ? "border-purple-500 bg-purple-50"
+              ? "border-red-500 bg-red-50"
               : "border-gray-200 bg-white hover:border-gray-300"
           }`}
         >
@@ -38,7 +38,7 @@ const RoleSelector = ({ value, onChange }) => {
             value="librarian"
             checked={value === "librarian"}
             onChange={onChange}
-            className="mr-2 accent-purple-500"
+            className="mr-2 accent-black-"
           />
           <span className="text-sm font-medium text-gray-700">Librarian</span>
         </label>

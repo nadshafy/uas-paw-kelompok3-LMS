@@ -39,7 +39,7 @@ const InputField = ({
             error
               ? "border-red-500"
               : focused
-              ? "border-purple-500"
+              ? "border-white-500"
               : "border-gray-200"
           }`}
         />

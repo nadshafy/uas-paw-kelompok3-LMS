@@ -135,18 +135,20 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 via-purple-600 to-purple-800 flex items-center justify-center p-5">
+    <div className="min-h-screen bg-gradient-to-br from-green-500 to-green-500 flex items-center justify-center p-5">
       <div className="w-full max-w-md">
         {/* Logo & Title */}
         <div className="text-center mb-8 text-white">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4 shadow-2xl">
-            <BookOpen size={40} className="text-purple-600" />
+            <BookOpen size={40} className="text-red-600" />
           </div>
           <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
-            Library System
+            Perpustakaan FRAND
           </h1>
           <p className="text-lg opacity-95">
-            {currentPage === "login" ? "Welcome back!" : "Create your account"}
+            {currentPage === "login"
+              ? "Selamat Datang!"
+              : "Create your account"}
           </p>
         </div>
 
@@ -158,7 +160,7 @@ const AuthPage = () => {
               onClick={() => switchPage("login")}
               className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
                 currentPage === "login"
-                  ? "bg-white text-purple-600 shadow-md"
+                  ? "bg-white text-red-600 shadow-md"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -168,7 +170,7 @@ const AuthPage = () => {
               onClick={() => switchPage("signup")}
               className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
                 currentPage === "signup"
-                  ? "bg-white text-purple-600 shadow-md"
+                  ? "bg-white text-red-600 shadow-md"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -198,7 +200,7 @@ const AuthPage = () => {
 
         {/* Footer */}
         <p className="text-center mt-6 text-white text-sm opacity-90">
-          Made with ❤️ for UAS PAW - Library Management System
+          UAS PAW - Library Management System
         </p>
       </div>
     </div>
