@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   BookOpen,
-  LogOut, // LogOut tidak diperlukan jika handleLogout dipindahkan
   Search,
   Book,
   Clock,
