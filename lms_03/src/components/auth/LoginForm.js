@@ -11,7 +11,7 @@ const LoginForm = ({
   onSubmit,
 }) => {
   return (
-    <div>
+    <div className="font-['Poppins']">
       <InputField
         label="Email"
         type="email"
@@ -19,7 +19,7 @@ const LoginForm = ({
         value={formData.email}
         onChange={onInputChange}
         error={errors.email}
-        placeholder="Masukkan email"
+        placeholder="Masukkan Email"
         icon={Mail}
       />
 
@@ -29,7 +29,7 @@ const LoginForm = ({
         value={formData.password}
         onChange={onInputChange}
         error={errors.password}
-        placeholder="Masukkan password"
+        placeholder="Masukkan Password"
       />
 
       <div className="text-right mb-6">
@@ -39,7 +39,8 @@ const LoginForm = ({
             e.preventDefault();
             alert("Password reset feature coming soon!");
           }}
-          className="text-#00000-600 text-xs font-medium hover:text-red-700 transition-colors"
+          // Link tetap putih, hover jadi Amber terang biar match
+          className="text-white text-xs font-medium hover:text-amber-100 transition-colors"
         >
           Forgot Password?
         </a>
@@ -48,10 +49,13 @@ const LoginForm = ({
       <button
         onClick={onSubmit}
         disabled={isLoading}
+        // UBAH WARNA TOMBOL:
+        // Menggunakan bg-amber-500 (Emas) -> hover ke amber-600 (Emas Gelap)
+        // Ditambah shadow warna amber biar makin glowing elegant
         className={`w-full py-4 rounded-xl text-base font-semibold text-white transition-all shadow-lg ${
           isLoading
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-gradient-to-r from-black to-black hover:shadow-xl hover:-translate-y-0.5"
+            : "bg-amber-500 hover:bg-amber-600 hover:shadow-amber-500/40 hover:shadow-xl hover:-translate-y-0.5"
         }`}
       >
         {isLoading ? "Please wait..." : "Login"}

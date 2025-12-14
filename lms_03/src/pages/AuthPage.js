@@ -21,7 +21,6 @@ const AuthPage = () => {
     const role = localStorage.getItem("userRole");
 
     if (token && role) {
-      // Redirect to appropriate dashboard
       if (role === "librarian") {
         window.location.href = "/dashboard-librarian";
       } else {
@@ -70,34 +69,12 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      // TODO: Replace with actual API endpoint
-      // const endpoint = currentPage === 'login'
-      //   ? 'http://your-domain.web.id/api/login'
-      //   : 'http://your-domain.web.id/api/register';
-
-      // const response = await fetch(endpoint, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     email: formData.email,
-      //     password: formData.password,
-      //     name: formData.name,
-      //     role: formData.role
-      //   })
-      // });
-
-      // const data = await response.json();
-
-      // Simulate successful response
       setTimeout(() => {
-        // Save to localStorage
         localStorage.setItem("token", "dummy-token-" + Date.now());
         localStorage.setItem("userName", formData.name || "User");
         localStorage.setItem("userEmail", formData.email);
         localStorage.setItem("userRole", formData.role);
 
-        // Redirect based on role
         if (formData.role === "librarian") {
           window.location.href = "/dashboard-librarian";
         } else {
@@ -116,7 +93,6 @@ const AuthPage = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -135,33 +111,39 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-500 to-green-500 flex items-center justify-center p-5">
+    <div
+      // UBAH BACKGROUND & FONT:
+      // 1. font-['Poppins']: Mengubah font global halaman ini
+      // 2. Gradient: Indigo Gelap -> Biru -> Amber (Emas).
+      // Menggunakan 'amber-400' agar kuningnya terlihat mahal (gold), bukan kuning stabilo.
+      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 via-blue-500 to-amber-400 font-['Poppins']"
+    >
       <div className="w-full max-w-md">
         {/* Logo & Title */}
         <div className="text-center mb-8 text-white">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4 shadow-2xl">
-            <BookOpen size={40} className="text-red-600" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mb-4 shadow-xl border border-white/30">
+            <BookOpen size={40} className="text-white" />
           </div>
-          <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
+          <h1 className="text-4xl font-bold mb-2 drop-shadow-md">
             Perpustakaan FRAND
           </h1>
-          <p className="text-lg opacity-95">
+          <p className="text-lg opacity-90 font-medium">
             {currentPage === "login"
               ? "Selamat Datang!"
-              : "Create your account"}
+              : "Yuk, Gabung Sekarang!"}
           </p>
         </div>
 
-        {/* Auth Card */}
-        <div className="bg-white rounded-3xl p-10 shadow-2xl">
+        {/* Auth Card - Glass Effect */}
+        <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-3xl p-10 shadow-2xl">
           {/* Tabs */}
-          <div className="flex mb-8 bg-gray-100 rounded-2xl p-1">
+          <div className="flex mb-8 bg-white/10 rounded-2xl p-1">
             <button
               onClick={() => switchPage("login")}
               className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
                 currentPage === "login"
-                  ? "bg-white text-red-600 shadow-md"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white text-indigo-900 shadow-md" // Teks aktif tetap Indigo Gelap agar kontras
+                  : "text-white hover:bg-white/10"
               }`}
             >
               Login
@@ -170,8 +152,8 @@ const AuthPage = () => {
               onClick={() => switchPage("signup")}
               className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
                 currentPage === "signup"
-                  ? "bg-white text-red-600 shadow-md"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white text-indigo-900 shadow-md"
+                  : "text-white hover:bg-white/10"
               }`}
             >
               Sign Up
@@ -199,7 +181,7 @@ const AuthPage = () => {
         </div>
 
         {/* Footer */}
-        <p className="text-center mt-6 text-white text-sm opacity-90">
+        <p className="text-center mt-6 text-white text-sm opacity-80 font-medium">
           UAS PAW - Library Management System
         </p>
       </div>

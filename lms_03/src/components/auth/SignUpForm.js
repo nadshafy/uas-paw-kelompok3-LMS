@@ -12,26 +12,27 @@ const SignUpForm = ({
   onSubmit,
 }) => {
   return (
-    <div>
+    // 1. Tambahkan font-['Poppins'] di sini
+    <div className="font-['Poppins']">
       <InputField
-        label="Full Name"
+        label="Nama"
         type="text"
         name="name"
         value={formData.name}
         onChange={onInputChange}
         error={errors.name}
-        placeholder="Enter your full name"
+        placeholder="Masukkan Nama Lengkap"
         icon={User}
       />
 
       <InputField
-        label="Email Address"
+        label="Email"
         type="email"
         name="email"
         value={formData.email}
         onChange={onInputChange}
         error={errors.email}
-        placeholder="Enter your email"
+        placeholder="Masukkan Email"
         icon={Mail}
       />
 
@@ -41,16 +42,16 @@ const SignUpForm = ({
         value={formData.password}
         onChange={onInputChange}
         error={errors.password}
-        placeholder="Enter your password"
+        placeholder="Masukkan Password"
       />
 
       <PasswordInput
-        label="Confirm Password"
+        label="Konfirmasi Password"
         name="confirmPassword"
         value={formData.confirmPassword}
         onChange={onInputChange}
         error={errors.confirmPassword}
-        placeholder="Confirm your password"
+        placeholder="Ulangi Password"
       />
 
       <RoleSelector value={formData.role} onChange={onInputChange} />
@@ -58,13 +59,15 @@ const SignUpForm = ({
       <button
         onClick={onSubmit}
         disabled={isLoading}
-        className={`w-full py-4 rounded-xl text-base font-semibold text-white transition-all shadow-lg mt-2 ${
+        // 2. Ubah font-semibold jadi font-bold
+        // 3. Ubah warna jadi bg-amber-500 (Emas) agar serasi dengan Login
+        className={`w-full py-4 rounded-xl text-base font-bold text-white transition-all shadow-lg mt-2 ${
           isLoading
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-gradient-to-r from-black to-black hover:shadow-xl hover:-translate-y-0.5"
+            ? "bg-black-400 cursor-not-allowed"
+            : "bg-amber-500 hover:bg-amber-600 hover:shadow-amber-500/40 hover:shadow-xl hover:-translate-y-0.5"
         }`}
       >
-        {isLoading ? "Please wait..." : "Create Account"}
+        {isLoading ? "Please wait..." : "Buat Akun"}
       </button>
     </div>
   );
