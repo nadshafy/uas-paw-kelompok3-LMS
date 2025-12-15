@@ -112,10 +112,6 @@ const AuthPage = () => {
 
   return (
     <div
-      // UBAH BACKGROUND & FONT:
-      // 1. font-['Poppins']: Mengubah font global halaman ini
-      // 2. Gradient: Indigo Gelap -> Biru -> Amber (Emas).
-      // Menggunakan 'amber-400' agar kuningnya terlihat mahal (gold), bukan kuning stabilo.
       className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 via-blue-500 to-amber-400 font-['Poppins']"
     >
       <div className="w-full max-w-md">
@@ -142,7 +138,7 @@ const AuthPage = () => {
               onClick={() => switchPage("login")}
               className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
                 currentPage === "login"
-                  ? "bg-white text-indigo-900 shadow-md" // Teks aktif tetap Indigo Gelap agar kontras
+                  ? "bg-white text-indigo-900 shadow-md" 
                   : "text-white hover:bg-white/10"
               }`}
             >
