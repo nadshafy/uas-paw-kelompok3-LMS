@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { BookOpen } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
 import LoginForm from "../components/auth/LoginForm";
 import SignUpForm from "../components/auth/SignUpForm";
 
 const AuthPage = () => {
+  const navigate = useNavigate(); // 2. Inisialisasi hook navigasi
   const [currentPage, setCurrentPage] = useState("login");
   const [formData, setFormData] = useState({
     name: "",
@@ -22,12 +24,12 @@ const AuthPage = () => {
 
     if (token && role) {
       if (role === "librarian") {
-        window.location.href = "/dashboard-librarian";
+        navigate("/dashboard-librarian"); // Ubah window.location ke navigate
       } else {
-        window.location.href = "/dashboard-member";
+        navigate("/dashboard-member"); // Ubah window.location ke navigate
       }
     }
-  }, []);
+  }, [navigate]);
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -75,10 +77,11 @@ const AuthPage = () => {
         localStorage.setItem("userEmail", formData.email);
         localStorage.setItem("userRole", formData.role);
 
+        // Redirect logic menggunakan navigate
         if (formData.role === "librarian") {
-          window.location.href = "/dashboard-librarian";
+          navigate("/dashboard-librarian");
         } else {
-          window.location.href = "/dashboard-member";
+          navigate("/dashboard-member");
         }
 
         setIsLoading(false);
@@ -111,9 +114,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 via-blue-500 to-amber-400 font-['Poppins']"
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 via-blue-500 to-amber-400 font-['Poppins']">
       <div className="w-full max-w-md">
         {/* Logo & Title */}
         <div className="text-center mb-8 text-white">
@@ -138,7 +139,7 @@ const AuthPage = () => {
               onClick={() => switchPage("login")}
               className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
                 currentPage === "login"
-                  ? "bg-white text-indigo-900 shadow-md" 
+                  ? "bg-white text-indigo-900 shadow-md"
                   : "text-white hover:bg-white/10"
               }`}
             >
