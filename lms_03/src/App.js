@@ -1,23 +1,19 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // Wajib ada
-
-// Import Halaman
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; 
 import AuthPage from "./pages/AuthPage";
 import DashboardMember from "./pages/DashboardMember";
 import DashboardLibrarian from "./pages/DashboardLibrarian";
-import BookManagement from "./pages/BookManagement"; // Jangan lupa ini
-
-// Import Layout & Sidebar
+import BookManagement from "./pages/BookManagement"; 
+import PeminjamanBuku from "./pages/PeminjamanBuku"; 
+import DetailPeminjaman from "./pages/DetailPeminjaman"; 
 import DashboardLayout from "./components/layout/DashboardLayout";
 import SidebarLibrarian from "./components/layout/SideBarLibrarian";
 import SidebarMember from "./components/layout/SideBarMember";
 
 function App() {
   return (
-    // 1. Router membungkus seluruh aplikasi
     <Router>
       <Routes>
-        {/* LOGIC 1: Jika user ke /dashboard-member */}
         <Route
           path="/dashboard-member"
           element={
@@ -27,7 +23,6 @@ function App() {
           }
         />
 
-        {/* LOGIC 2: Jika user ke /dashboard-librarian */}
         <Route
           path="/dashboard-librarian"
           element={
@@ -37,7 +32,6 @@ function App() {
           }
         />
 
-        {/* LOGIC 3: Halaman Manajemen Buku (DIPERBAIKI: Sekarang pakai Sidebar) */}
         <Route
           path="/book-management"
           element={
@@ -47,7 +41,24 @@ function App() {
           }
         />
 
-        {/* LOGIC 4: Default / Halaman Login (pengganti 'else') */}
+        <Route
+          path="/peminjaman-buku"
+          element={
+            <DashboardLayout sidebar={<SidebarLibrarian />}>
+              <PeminjamanBuku />
+            </DashboardLayout>
+          }
+        />
+
+        <Route
+          path="/peminjaman/detail"
+          element={
+            <DashboardLayout sidebar={<SidebarLibrarian />}>
+              <DetailPeminjaman />
+            </DashboardLayout>
+          }
+        />
+
         <Route path="/" element={<AuthPage />} />
       </Routes>
     </Router>

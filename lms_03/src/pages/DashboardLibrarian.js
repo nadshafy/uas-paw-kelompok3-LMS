@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
+import { useNavigate } from "react-router-dom"; 
 import {
   Plus,
   Book,
@@ -10,7 +10,6 @@ import {
   LogOut,
 } from "lucide-react";
 
-// --- DATA DUMMY ---
 const simulatedBookData = [
   {
     no: 1,
@@ -85,7 +84,7 @@ const simulatedBookData = [
 ];
 
 const DashboardLibrarian = () => {
-  const navigate = useNavigate(); // 2. Init Navigasi
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [stats, setStats] = useState({
     totalBooks: 0,
@@ -113,7 +112,7 @@ const DashboardLibrarian = () => {
     const userEmail = localStorage.getItem("userEmail");
 
     if (!token) {
-      navigate("/"); // Ganti redirect
+      navigate("/"); 
       return;
     }
 
@@ -166,14 +165,13 @@ const DashboardLibrarian = () => {
   const handleLogout = () => {
     if (window.confirm("Apakah Anda yakin ingin logout?")) {
       localStorage.clear();
-      navigate("/"); // Gunakan navigate untuk logout
+      navigate("/");
     }
   };
 
-  // 3. Fungsi Navigasi Baru
   const handleNavigate = (path) => {
     if (path === "#") {
-      return; // atau alert("Fitur belum tersedia");
+      return; 
     }
     navigate(path);
   };
@@ -244,14 +242,14 @@ const DashboardLibrarian = () => {
             desc: "Lihat, tambah, dan edit buku katalog",
             icon: <Book size={40} className="text-indigo-700" />,
             bgColor: "bg-indigo-200/50",
-            path: "/book-management", // Pastikan path ini sesuai
+            path: "/book-management", 
           },
           {
             title: "PEMINJAMAN",
             desc: "Lakukan transaksi peminjaman buku",
             icon: <Plus size={40} className="text-green-700" />,
             bgColor: "bg-green-200/50",
-            path: "#",
+            path: "/peminjaman-buku",
           },
           {
             title: "PENGEMBALIAN",
@@ -270,7 +268,7 @@ const DashboardLibrarian = () => {
         ].map((item, i) => (
           <div
             key={i}
-            onClick={() => handleNavigate(item.path)} // Panggil fungsi navigate
+            onClick={() => handleNavigate(item.path)} 
             className="relative overflow-hidden rounded-2xl p-6 bg-white/20 backdrop-blur-md border border-white/30 shadow-xl hover:bg-white/30 hover:scale-105 transition-all cursor-pointer text-white"
           >
             <div className="mb-4 opacity-80 flex justify-center">

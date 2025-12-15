@@ -1,6 +1,6 @@
 import React from "react";
-import { Book, TrendingUp, Plus, List, RotateCcw, LogOut } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom"; // 1. Import Wajib
+import { Book, TrendingUp, Plus, List, RotateCcw } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom"; 
 
 const NavItem = ({
   icon,
@@ -18,9 +18,9 @@ const NavItem = ({
     : "hover:bg-indigo-700/70";
 
   return React.createElement(
-    "div", // 2. Gunakan DIV, bukan A (supaya tidak reload)
+    "div", 
     {
-      onClick: () => onNavigate(path), // 3. Panggil fungsi navigate
+      onClick: () => onNavigate(path),
       className: `${baseClass} ${activeClass}`,
     },
     React.createElement(icon, { size: 20 }),
@@ -30,11 +30,10 @@ const NavItem = ({
 };
 
 const SidebarLibrarian = ({ isSidebarOpen, toggleSidebar }) => {
-  const navigate = useNavigate(); // Hook navigasi
-  const location = useLocation(); // Hook lokasi saat ini
+  const navigate = useNavigate(); 
+  const location = useLocation(); 
   const sidebarClass = isSidebarOpen ? "w-64" : "w-20";
 
-  // Fungsi untuk pindah halaman
   const handleNavigate = (path) => {
     navigate(path);
   };
@@ -46,7 +45,6 @@ const SidebarLibrarian = ({ isSidebarOpen, toggleSidebar }) => {
       bg-gradient-to-br from-indigo-900/60 to-blue-900/60 backdrop-blur-md border-r border-white/20`,
     },
 
-    // --- LOGO ---
     React.createElement(
       "div",
       {
@@ -63,7 +61,7 @@ const SidebarLibrarian = ({ isSidebarOpen, toggleSidebar }) => {
       "nav",
       { className: "space-y-2 flex-grow pl-1 pr-1" },
 
-      // Dashboard
+      // 1. Dashboard
       React.createElement(NavItem, {
         icon: TrendingUp,
         label: "Dashboard",
@@ -73,39 +71,43 @@ const SidebarLibrarian = ({ isSidebarOpen, toggleSidebar }) => {
         onNavigate: handleNavigate,
       }),
 
-      // Manajemen Buku (DIPERBAIKI PATH-NYA)
+      // 2. Manajemen Buku
       React.createElement(NavItem, {
         icon: Book,
         label: "Manajemen Buku",
-        path: "/book-management", // <--- INI YG PENTING (Harus sama dgn App.js)
+        path: "/book-management",
         isSidebarOpen,
         isActive: location.pathname === "/book-management",
         onNavigate: handleNavigate,
       }),
 
-      // Menu Lainnya
+      // 3. Peminjaman (
       React.createElement(NavItem, {
         icon: Plus,
         label: "Peminjaman",
-        path: "/librarian/borrow",
+        path: "/peminjaman-buku",
         isSidebarOpen,
-        isActive: location.pathname === "/librarian/borrow",
+        isActive: location.pathname.includes("peminjaman"), 
         onNavigate: handleNavigate,
       }),
+
+      // 4. Pengembalian
       React.createElement(NavItem, {
         icon: RotateCcw,
         label: "Pengembalian",
         path: "/librarian/return",
         isSidebarOpen,
-        isActive: location.pathname === "/librarian/return",
+        isActive: location.pathname.includes("return"),
         onNavigate: handleNavigate,
       }),
+
+      // 5. Transaksi
       React.createElement(NavItem, {
         icon: List,
         label: "Transaksi",
         path: "/librarian/transaction",
         isSidebarOpen,
-        isActive: location.pathname === "/librarian/transaction",
+        isActive: location.pathname.includes("transaction"),
         onNavigate: handleNavigate,
       })
     )
