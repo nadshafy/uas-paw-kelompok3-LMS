@@ -13,9 +13,7 @@ const PasswordInput = ({
   const [focused, setFocused] = useState(false);
 
   return (
-    // 1. Tambah font-['Poppins']
     <div className="mb-5 font-['Poppins']">
-      {/* 2. Ubah text-gray-700 jadi text-black */}
       <label className="block mb-2 text-sm font-semibold text-black">
         {label}
       </label>
@@ -32,8 +30,6 @@ const PasswordInput = ({
           placeholder={placeholder}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          // 3. Tambah text-black agar ketikan berwarna hitam
-          // 4. Perbaiki border-black- (typo) jadi border-amber-500 (Emas) saat fokus
           className={`w-full py-3.5 px-4 pl-12 pr-12 text-black border-2 rounded-xl text-sm transition-all outline-none ${
             error
               ? "border-red-500"

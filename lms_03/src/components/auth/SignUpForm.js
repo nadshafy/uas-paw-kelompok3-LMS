@@ -12,7 +12,6 @@ const SignUpForm = ({
   onSubmit,
 }) => {
   return (
-    // 1. Tambahkan font-['Poppins'] di sini
     <div className="font-['Poppins']">
       <InputField
         label="Nama"
@@ -59,8 +58,6 @@ const SignUpForm = ({
       <button
         onClick={onSubmit}
         disabled={isLoading}
-        // 2. Ubah font-semibold jadi font-bold
-        // 3. Ubah warna jadi bg-amber-500 (Emas) agar serasi dengan Login
         className={`w-full py-4 rounded-xl text-base font-bold text-white transition-all shadow-lg mt-2 ${
           isLoading
             ? "bg-black-400 cursor-not-allowed"

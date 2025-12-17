@@ -14,9 +14,7 @@ const InputField = ({
   const [focused, setFocused] = useState(false);
 
   return (
-    // 1. Tambah font-['Poppins']
     <div className="mb-5 font-['Poppins']">
-      {/* 2. Ubah text-gray-700 jadi text-black */}
       <label className="block mb-2 text-sm font-semibold text-black">
         {label}
       </label>
@@ -35,15 +33,13 @@ const InputField = ({
           placeholder={placeholder}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          // 3. Tambah text-black agar hasil ketikan hitam pekat
-          // 4. Perbaiki border-white-500 jadi border-amber-500 (Emas) saat fokus
           className={`w-full py-3.5 px-4 text-black ${
             Icon ? "pl-12" : ""
           } border-2 rounded-xl text-sm transition-all outline-none ${
             error
               ? "border-red-500"
               : focused
-              ? "border-amber-500" // Fixed: Jadi Amber (Emas) agar valid dan serasi
+              ? "border-amber-500"
               : "border-gray-200"
           }`}
         />

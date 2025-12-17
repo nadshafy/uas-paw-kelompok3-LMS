@@ -1,6 +1,6 @@
 import React from "react";
 import { Book, TrendingUp, Plus, List, RotateCcw } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom"; 
+import { useNavigate, useLocation } from "react-router-dom";
 
 const NavItem = ({
   icon,
@@ -18,7 +18,7 @@ const NavItem = ({
     : "hover:bg-indigo-700/70";
 
   return React.createElement(
-    "div", 
+    "div",
     {
       onClick: () => onNavigate(path),
       className: `${baseClass} ${activeClass}`,
@@ -30,8 +30,8 @@ const NavItem = ({
 };
 
 const SidebarLibrarian = ({ isSidebarOpen, toggleSidebar }) => {
-  const navigate = useNavigate(); 
-  const location = useLocation(); 
+  const navigate = useNavigate();
+  const location = useLocation();
   const sidebarClass = isSidebarOpen ? "w-64" : "w-20";
 
   const handleNavigate = (path) => {
@@ -81,33 +81,22 @@ const SidebarLibrarian = ({ isSidebarOpen, toggleSidebar }) => {
         onNavigate: handleNavigate,
       }),
 
-      // 3. Peminjaman (
+      // 3. Peminjaman
       React.createElement(NavItem, {
         icon: Plus,
         label: "Peminjaman",
         path: "/peminjaman-buku",
         isSidebarOpen,
-        isActive: location.pathname.includes("peminjaman"), 
+        isActive: location.pathname.includes("peminjaman"),
         onNavigate: handleNavigate,
       }),
-
-      // 4. Pengembalian
-      React.createElement(NavItem, {
-        icon: RotateCcw,
-        label: "Pengembalian",
-        path: "/librarian/return",
-        isSidebarOpen,
-        isActive: location.pathname.includes("return"),
-        onNavigate: handleNavigate,
-      }),
-
-      // 5. Transaksi
+      // 4. Riwayat Denda
       React.createElement(NavItem, {
         icon: List,
-        label: "Transaksi",
-        path: "/librarian/transaction",
+        label: "Riwayat Denda",
+        path: "/transaksi-denda",
         isSidebarOpen,
-        isActive: location.pathname.includes("transaction"),
+        isActive: location.pathname === "/transaksi-denda",
         onNavigate: handleNavigate,
       })
     )

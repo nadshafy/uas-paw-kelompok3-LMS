@@ -39,7 +39,6 @@ const LoginForm = ({
             e.preventDefault();
             alert("Password reset feature coming soon!");
           }}
-          // Link tetap putih, hover jadi Amber terang biar match
           className="text-white text-xs font-medium hover:text-amber-100 transition-colors"
         >
           Forgot Password?
@@ -49,9 +48,6 @@ const LoginForm = ({
       <button
         onClick={onSubmit}
         disabled={isLoading}
-        // UBAH WARNA TOMBOL:
-        // Menggunakan bg-amber-500 (Emas) -> hover ke amber-600 (Emas Gelap)
-        // Ditambah shadow warna amber biar makin glowing elegant
         className={`w-full py-4 rounded-xl text-base font-semibold text-white transition-all shadow-lg ${
           isLoading
             ? "bg-gray-400 cursor-not-allowed"

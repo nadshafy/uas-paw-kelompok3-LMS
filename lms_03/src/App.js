@@ -1,14 +1,15 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; 
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // --- IMPORT HALAMAN ---
 import AuthPage from "./pages/AuthPage";
 import DashboardMember from "./pages/DashboardMember";
 import DashboardLibrarian from "./pages/DashboardLibrarian";
-import BookManagement from "./pages/BookManagement"; 
-import PeminjamanBuku from "./pages/PeminjamanBuku"; 
-import DetailPeminjaman from "./pages/DetailPeminjaman"; 
-import MemberHistory from "./pages/HistoryMember"; // <-- 1. IMPORT FILE BARU DISINI
+import BookManagement from "./pages/BookManagement";
+import PeminjamanBuku from "./pages/PeminjamanBuku";
+import DetailPeminjaman from "./pages/DetailPeminjaman";
+import MemberHistory from "./pages/HistoryMember";
+import TransaksiDenda from "./pages/TransaksiDenda"; // <-- 1. IMPORT FILE BARU DISINI
 
 // --- IMPORT LAYOUT & SIDEBAR ---
 import DashboardLayout from "./components/layout/DashboardLayout";
@@ -20,7 +21,7 @@ function App() {
     <Router>
       <Routes>
         {/* --- ROUTE UNTUK MEMBER --- */}
-        
+
         {/* 1. Dashboard Member */}
         <Route
           path="/dashboard-member"
@@ -31,7 +32,7 @@ function App() {
           }
         />
 
-        {/* 2. Riwayat Peminjaman Member (BARU) */}
+        {/* 2. Riwayat Peminjaman Member */}
         <Route
           path="/member/myborrows"
           element={
@@ -40,7 +41,6 @@ function App() {
             </DashboardLayout>
           }
         />
-
 
         {/* --- ROUTE UNTUK LIBRARIAN --- */}
 
@@ -80,6 +80,16 @@ function App() {
           element={
             <DashboardLayout sidebar={<SidebarLibrarian />}>
               <DetailPeminjaman />
+            </DashboardLayout>
+          }
+        />
+
+        {/* 5. Transaksi Denda (BARU DITAMBAHKAN) */}
+        <Route
+          path="/transaksi-denda"
+          element={
+            <DashboardLayout sidebar={<SidebarLibrarian />}>
+              <TransaksiDenda />
             </DashboardLayout>
           }
         />

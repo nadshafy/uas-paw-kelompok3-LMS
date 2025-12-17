@@ -92,7 +92,7 @@ const BookManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("add"); // 'add' atau 'edit'
+  const [modalMode, setModalMode] = useState("add");
   const [currentBook, setCurrentBook] = useState(null);
   const [formData, setFormData] = useState({
     isbn: "",

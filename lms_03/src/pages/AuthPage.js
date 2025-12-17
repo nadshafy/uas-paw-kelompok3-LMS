@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { BookOpen } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
+import { useNavigate } from "react-router-dom";
 import LoginForm from "../components/auth/LoginForm";
 import SignUpForm from "../components/auth/SignUpForm";
 
 const AuthPage = () => {
-  const navigate = useNavigate(); // 2. Inisialisasi hook navigasi
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState("login");
   const [formData, setFormData] = useState({
     name: "",
@@ -17,16 +17,15 @@ const AuthPage = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check if user is already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("userRole");
 
     if (token && role) {
       if (role === "librarian") {
-        navigate("/dashboard-librarian"); // Ubah window.location ke navigate
+        navigate("/dashboard-librarian");
       } else {
-        navigate("/dashboard-member"); // Ubah window.location ke navigate
+        navigate("/dashboard-member");
       }
     }
   }, [navigate]);
@@ -77,7 +76,6 @@ const AuthPage = () => {
         localStorage.setItem("userEmail", formData.email);
         localStorage.setItem("userRole", formData.role);
 
-        // Redirect logic menggunakan navigate
         if (formData.role === "librarian") {
           navigate("/dashboard-librarian");
         } else {
@@ -131,9 +129,7 @@ const AuthPage = () => {
           </p>
         </div>
 
-        {/* Auth Card - Glass Effect */}
         <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-3xl p-10 shadow-2xl">
-          {/* Tabs */}
           <div className="flex mb-8 bg-white/10 rounded-2xl p-1">
             <button
               onClick={() => switchPage("login")}
@@ -157,7 +153,6 @@ const AuthPage = () => {
             </button>
           </div>
 
-          {/* Forms */}
           {currentPage === "login" ? (
             <LoginForm
               formData={formData}
@@ -177,7 +172,6 @@ const AuthPage = () => {
           )}
         </div>
 
-        {/* Footer */}
         <p className="text-center mt-6 text-white text-sm opacity-80 font-medium">
           UAS PAW - Library Management System
         </p>
