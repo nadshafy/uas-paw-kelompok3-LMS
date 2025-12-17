@@ -187,34 +187,6 @@ const DashboardLibrarian = () => {
 
   return (
     <div className="min-h-screen p-8 space-y-8 font-['Poppins'] bg-gradient-to-br from-indigo-900 via-blue-500 to-amber-400">
-      {/* HEADER WITH LOGOUT */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl">
-            <Book size={32} className="text-white" />
-          </div>
-          <div className="text-white">
-            <h1 className="text-2xl font-bold drop-shadow-md">
-              Perpustakaan FRAND
-            </h1>
-            <p className="text-sm opacity-90">Dashboard Librarian</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="text-right hidden md:block text-white">
-            <p className="text-sm font-semibold">{userData?.name}</p>
-            <p className="text-xs opacity-80">{userData?.email}</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all shadow-lg font-semibold"
-          >
-            <LogOut size={18} />
-            <span className="hidden sm:inline">Logout</span>
-          </button>
-        </div>
-      </div>
 
       {/* WELCOME SECTION */}
       <div className="relative overflow-hidden rounded-3xl p-8 bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl">

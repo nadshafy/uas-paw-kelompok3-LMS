@@ -1,11 +1,16 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; 
+
+// --- IMPORT HALAMAN ---
 import AuthPage from "./pages/AuthPage";
 import DashboardMember from "./pages/DashboardMember";
 import DashboardLibrarian from "./pages/DashboardLibrarian";
 import BookManagement from "./pages/BookManagement"; 
 import PeminjamanBuku from "./pages/PeminjamanBuku"; 
 import DetailPeminjaman from "./pages/DetailPeminjaman"; 
+import MemberHistory from "./pages/HistoryMember"; // <-- 1. IMPORT FILE BARU DISINI
+
+// --- IMPORT LAYOUT & SIDEBAR ---
 import DashboardLayout from "./components/layout/DashboardLayout";
 import SidebarLibrarian from "./components/layout/SideBarLibrarian";
 import SidebarMember from "./components/layout/SideBarMember";
@@ -14,6 +19,9 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* --- ROUTE UNTUK MEMBER --- */}
+        
+        {/* 1. Dashboard Member */}
         <Route
           path="/dashboard-member"
           element={
@@ -23,6 +31,20 @@ function App() {
           }
         />
 
+        {/* 2. Riwayat Peminjaman Member (BARU) */}
+        <Route
+          path="/member/myborrows"
+          element={
+            <DashboardLayout sidebar={<SidebarMember />}>
+              <MemberHistory />
+            </DashboardLayout>
+          }
+        />
+
+
+        {/* --- ROUTE UNTUK LIBRARIAN --- */}
+
+        {/* 1. Dashboard Librarian */}
         <Route
           path="/dashboard-librarian"
           element={
@@ -32,6 +54,7 @@ function App() {
           }
         />
 
+        {/* 2. Manajemen Buku */}
         <Route
           path="/book-management"
           element={
@@ -41,6 +64,7 @@ function App() {
           }
         />
 
+        {/* 3. Peminjaman Buku (Input Form) */}
         <Route
           path="/peminjaman-buku"
           element={
@@ -50,6 +74,7 @@ function App() {
           }
         />
 
+        {/* 4. Detail Peminjaman */}
         <Route
           path="/peminjaman/detail"
           element={
@@ -59,6 +84,7 @@ function App() {
           }
         />
 
+        {/* --- DEFAULT / LOGIN --- */}
         <Route path="/" element={<AuthPage />} />
       </Routes>
     </Router>
