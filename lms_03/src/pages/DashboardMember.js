@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const DashboardMember = ({ userData, isLoading }) => {
+  // Inisialisasi hook navigasi
+  const navigate = useNavigate();
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -33,7 +37,7 @@ const DashboardMember = ({ userData, isLoading }) => {
   useEffect(() => {
     const slideInterval = setInterval(() => {
       setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    }, 4000); // Bergeser setiap 4 detik
+    }, 4000);
 
     return () => clearInterval(slideInterval);
   }, [slides.length]);
@@ -196,22 +200,18 @@ const DashboardMember = ({ userData, isLoading }) => {
 
       {/* --- CAROUSEL BANNER SECTION --- */}
       <div className="relative w-full h-72 rounded-3xl overflow-hidden shadow-lg mb-10 group">
-        {/* Container Gambar*/}
         <div
           className="flex transition-transform duration-700 ease-in-out h-full w-full"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
           {slides.map((slide) => (
             <div key={slide.id} className="min-w-full h-full relative">
-              {/* Gambar Background */}
               <img
                 src={slide.image}
                 alt="Banner"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/80 via-black/40 to-transparent"></div>
-
-              {/* Teks Konten */}
               <div className="absolute inset-0 flex flex-col justify-center px-10 md:px-16 text-white">
                 <h2 className="text-3xl md:text-5xl font-bold mb-3 drop-shadow-lg transition-all duration-500 transform translate-y-0">
                   {slide.text}
@@ -224,7 +224,6 @@ const DashboardMember = ({ userData, isLoading }) => {
           ))}
         </div>
 
-        {/* Tombol Navigasi Bawah */}
         <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
           {slides.map((_, index) => (
             <button
@@ -267,6 +266,8 @@ const DashboardMember = ({ userData, isLoading }) => {
                 {section.items.map((item, idx) => (
                   <div
                     key={idx}
+                    // 3. TAMBAHKAN ONCLICK KE HALAMAN DETAIL
+                    onClick={() => navigate('/book-detail', { state: item })}
                     className="
                       group relative h-[380px] min-w-[260px] w-[260px] flex-none 
                       rounded-3xl overflow-hidden cursor-pointer transition-all duration-300

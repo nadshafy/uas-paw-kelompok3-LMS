@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; 
 import { Search, Calendar, BookOpen, User, ArrowLeft, Clock, CheckCircle } from "lucide-react";
 
 const MemberHistory = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("") ; 
+  const [historyData, setHistoryData] = useState([]);
 
-  // DATA DUMMY RIWAYAT PEMINJAMAN
-  const historyData = [
+  // DATA DUMMY AWAL 
+  const initialData = [
     {
-      id: 1,
+      id: 101,
       title: "Buku Entong",
       author: "Adel & Ecak",
       category: "Fiksi",
@@ -16,37 +17,12 @@ const MemberHistory = () => {
       status: "Dipinjam", 
       coverColor: "bg-emerald-500"
     },
-    {
-      id: 2,
-      title: "Laskar Pelangi",
-      author: "Andrea Hirata",
-      category: "Fiksi",
-      borrowDate: "01/12/2025",
-      returnDate: "08/12/2025",
-      status: "Dikembalikan",
-      coverColor: "bg-blue-500"
-    },
-    {
-      id: 3,
-      title: "Atomic Habits",
-      author: "James Clear",
-      category: "Self Dev",
-      borrowDate: "15/11/2025",
-      returnDate: "22/11/2025",
-      status: "Dikembalikan",
-      coverColor: "bg-indigo-500"
-    },
-    {
-      id: 4,
-      title: "Filosofi Teras",
-      author: "Henry Manampiring",
-      category: "Filosofi",
-      borrowDate: "20/12/2025",
-      returnDate: "27/12/2025",
-      status: "Dipinjam",
-      coverColor: "bg-teal-500"
-    }
   ];
+
+  useEffect(() => {
+    const storedHistory = JSON.parse(localStorage.getItem("memberHistory")) || [];
+    setHistoryData([...storedHistory, ...initialData]);
+  }, []);
 
   // Filter Data
   const filteredHistory = historyData.filter((item) =>
@@ -92,20 +68,18 @@ const MemberHistory = () => {
       {/* GRID KARTU RIWAYAT */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredHistory.length > 0 ? (
-          filteredHistory.map((item) => (
+          filteredHistory.map((item, index) => (
             <div
-              key={item.id}
+              key={index} 
               className="group relative bg-white/40 backdrop-blur-md border border-white/60 rounded-3xl p-6 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
             >
-              <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full ${item.coverColor} opacity-20 blur-xl group-hover:opacity-30 transition-opacity`}></div>
+              <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full ${item.coverColor || 'bg-gray-400'} opacity-20 blur-xl group-hover:opacity-30 transition-opacity`}></div>
 
               <div className="flex items-start justify-between mb-4">
-                {/* Judul Buku */}
                 <h3 className="text-2xl font-bold text-gray-900 line-clamp-1 group-hover:text-emerald-700 transition-colors">
                   {item.title}
                 </h3>
                 
-                {/* Badge Status*/}
                 <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm ${
                   item.status === "Dipinjam" 
                     ? "bg-yellow-100 text-yellow-700 border border-yellow-200" 
@@ -116,7 +90,6 @@ const MemberHistory = () => {
                 </span>
               </div>
 
-              {/* Detail Info */}
               <div className="space-y-3 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <User size={16} className="text-emerald-600" />

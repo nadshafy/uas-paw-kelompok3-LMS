@@ -1,17 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-// --- IMPORT HALAMAN ---
 import AuthPage from "./pages/AuthPage";
 import DashboardMember from "./pages/DashboardMember";
 import DashboardLibrarian from "./pages/DashboardLibrarian";
 import BookManagement from "./pages/BookManagement";
 import PeminjamanBuku from "./pages/PeminjamanBuku";
 import DetailPeminjaman from "./pages/DetailPeminjaman";
-import MemberHistory from "./pages/HistoryMember";
-import TransaksiDenda from "./pages/TransaksiDenda"; // <-- 1. IMPORT FILE BARU DISINI
-
-// --- IMPORT LAYOUT & SIDEBAR ---
+import MemberHistory from "./pages/HistoryMember"; 
+import TransaksiDenda from "./pages/TransaksiDenda";
+import BookDetail from "./pages/BookDetail"; 
 import DashboardLayout from "./components/layout/DashboardLayout";
 import SidebarLibrarian from "./components/layout/SideBarLibrarian";
 import SidebarMember from "./components/layout/SideBarMember";
@@ -20,7 +17,6 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* --- ROUTE UNTUK MEMBER --- */}
 
         {/* 1. Dashboard Member */}
         <Route
@@ -42,7 +38,10 @@ function App() {
           }
         />
 
-        {/* --- ROUTE UNTUK LIBRARIAN --- */}
+        {/* 3. Detail Buku Member (BARU DITAMBAHKAN) */}
+        <Route path="/book-detail" element={<BookDetail />} />
+
+
 
         {/* 1. Dashboard Librarian */}
         <Route
@@ -64,7 +63,7 @@ function App() {
           }
         />
 
-        {/* 3. Peminjaman Buku (Input Form) */}
+        {/* 3. Peminjaman Buku*/}
         <Route
           path="/peminjaman-buku"
           element={
@@ -84,7 +83,7 @@ function App() {
           }
         />
 
-        {/* 5. Transaksi Denda (BARU DITAMBAHKAN) */}
+        {/* 5. Transaksi Denda */}
         <Route
           path="/transaksi-denda"
           element={

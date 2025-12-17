@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // 1. Tambah useEffect
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -14,16 +14,13 @@ import {
   Calendar,
   FileText,
   Plus,
-  X, // 2. Tambah Icon Plus dan X
+  X, 
 } from "lucide-react";
 
 const PeminjamanBuku = () => {
   const navigate = useNavigate();
-
-  // 3. STATE TOGGLE FORM (Default False/Sembunyi)
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  // STATE FORM
   const [formData, setFormData] = useState({
     nama: "",
     noTelp: "",
@@ -36,7 +33,6 @@ const PeminjamanBuku = () => {
     kodeTransaksi: "",
   });
 
-  // 4. STATE DATA TABEL (Disesuaikan agar baca LocalStorage)
   const [loanData, setLoanData] = useState(() => {
     const savedData = localStorage.getItem("borrowedBooks");
     if (savedData) {

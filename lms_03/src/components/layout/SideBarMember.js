@@ -65,15 +65,6 @@ const SidebarMember = () => {
         isActive: location.pathname === "/member/myborrows", 
         onClick: handleNavigate
       }),
-
-      //PROFIL
-      React.createElement(NavItem, { 
-        icon: LogOut, 
-        label: "Profil & Pengaturan", 
-        path: "/member/profile", 
-        isActive: location.pathname === "/member/profile",
-        onClick: handleNavigate
-      })
     )
   );
 };
