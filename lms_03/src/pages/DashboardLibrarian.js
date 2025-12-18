@@ -9,79 +9,7 @@ import {
   Search,
   LogOut,
 } from "lucide-react";
-
-const simulatedBookData = [
-  {
-    no: 1,
-    isbn: "978-6028519943",
-    title: "Atomic Habits",
-    author: "James Clear",
-    category: "Pengembangan Diri",
-  },
-  {
-    no: 2,
-    isbn: "978-0743273565",
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    category: "Fiksi",
-  },
-  {
-    no: 3,
-    isbn: "978-1503606685",
-    title: "Sapiens: A Brief History",
-    author: "Yuval Noah Harari",
-    category: "Sejarah",
-  },
-  {
-    no: 4,
-    isbn: "978-0134757544",
-    title: "Clean Code",
-    author: "Robert C. Martin",
-    category: "Teknologi",
-  },
-  {
-    no: 5,
-    isbn: "978-9791443831",
-    title: "Laskar Pelangi",
-    author: "Andrea Hirata",
-    category: "Fiksi",
-  },
-  {
-    no: 6,
-    isbn: "978-0321765723",
-    title: "The Martian",
-    author: "Andy Weir",
-    category: "Fiksi Ilmiah",
-  },
-  {
-    no: 7,
-    isbn: "978-1593275990",
-    title: "Eloquent JavaScript",
-    author: "Marijn Haverbeke",
-    category: "Teknologi",
-  },
-  {
-    no: 8,
-    isbn: "978-0061120084",
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    category: "Fiksi Klasik",
-  },
-  {
-    no: 9,
-    isbn: "978-0062316097",
-    title: "Educated",
-    author: "Tara Westover",
-    category: "Biografi",
-  },
-  {
-    no: 10,
-    isbn: "978-1400030658",
-    title: "Siddhartha",
-    author: "Hermann Hesse",
-    category: "Filosofi",
-  },
-];
+import { BookService, CategoryService, API_BASE_URL } from "../services/api";
 
 const DashboardLibrarian = () => {
   const navigate = useNavigate();
@@ -96,15 +24,9 @@ const DashboardLibrarian = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
-  const categories = [
-    "All",
-    "Fiksi",
-    "Sains",
-    "Sejarah",
-    "Teknologi",
-    "Pengembangan Diri",
-  ];
-  const [filteredBooks, setFilteredBooks] = useState(simulatedBookData);
+  const [categories, setCategories] = useState(["All"]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [books, setBooks] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -121,19 +43,49 @@ const DashboardLibrarian = () => {
       email: userEmail || "librarian@library.com",
     });
 
-    setTimeout(() => {
-      setStats({
-        totalBooks: 1250,
-        totalMembers: 342,
-        activeBorrows: 89,
-        overdueBooks: 5,
-      });
+    // Load data from API
+    loadDashboardData();
+    loadBooks();
+    loadCategories();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/dashboard/librarian`);
+      const data = await response.json();
+      
+      if (data.dashboard) {
+        setStats({
+          totalBooks: data.dashboard.books.total || 0,
+          totalMembers: data.dashboard.users.total_members || 0,
+          activeBorrows: data.dashboard.borrowings.active || 0,
+          overdueBooks: data.dashboard.borrowings.late || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+    } finally {
       setIsLoading(false);
-    }, 800);
-  }, [navigate]);
+    }
+  };
+
+  const loadBooks = async () => {
+    const result = await BookService.getAll(searchQuery, filterCategory);
+    if (result.success) {
+      setBooks(result.data.books);
+      setFilteredBooks(result.data.books.slice(0, 10)); // Show first 10
+    }
+  };
+
+  const loadCategories = async () => {
+    const result = await CategoryService.getAll();
+    if (result.success) {
+      setCategories(["All", ...result.data.categories]);
+    }
+  };
 
   useEffect(() => {
-    let results = simulatedBookData;
+    let results = books.slice(0, 10); // Limit to 10 for dashboard
 
     if (filterCategory !== "all") {
       results = results.filter(
@@ -146,13 +98,12 @@ const DashboardLibrarian = () => {
       results = results.filter(
         (book) =>
           book.title.toLowerCase().includes(query) ||
-          book.author.toLowerCase().includes(query) ||
-          book.isbn.includes(query)
+          book.author.toLowerCase().includes(query)
       );
     }
 
     setFilteredBooks(results);
-  }, [searchQuery, filterCategory]);
+  }, [searchQuery, filterCategory, books]);
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -346,7 +297,6 @@ const DashboardLibrarian = () => {
           <thead className="bg-gray-100 text-gray-800 uppercase font-bold border-b border-gray-200">
             <tr>
               <th className="px-6 py-4">No</th>
-              <th className="px-6 py-4">ISBN</th>
               <th className="px-6 py-4">Nama Buku</th>
               <th className="px-6 py-4">Penulis</th>
               <th className="px-6 py-4">Kategori</th>
@@ -354,15 +304,12 @@ const DashboardLibrarian = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredBooks.length > 0 ? (
-              filteredBooks.map((book) => (
+              filteredBooks.map((book, index) => (
                 <tr
-                  key={book.isbn}
+                  key={book.id}
                   className="hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <td className="px-6 py-4 font-medium">{book.no}</td>
-                  <td className="px-6 py-4 font-mono text-xs text-black-1000">
-                    {book.isbn}
-                  </td>
+                  <td className="px-6 py-4 font-medium">{index + 1}</td>
                   <td className="px-6 py-4 text-gray-800">{book.title}</td>
                   <td className="px-6 py-4">{book.author}</td>
                   <td className="px-6 py-4">

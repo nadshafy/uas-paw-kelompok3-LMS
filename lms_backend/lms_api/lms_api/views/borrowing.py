@@ -32,9 +32,8 @@ def list_borrowings(request):
                 "member_name": b.user.name if b.user else "",
                 "book_id": b.book_id,
                 "book_title": b.book.title if b.book else "",
-                "isbn": b.book.ISBN if b.book else "",
-                "author": b.book.author if b.book else "",
-                "category": b.book.category if b.book else "",
+                "author": b.book.author.name if (b.book and b.book.author) else "",
+                "category": b.book.category.name if (b.book and b.book.category) else "",
                 "borrow_date": b.borrow_date.strftime("%Y-%m-%d") if b.borrow_date else None,
                 "due_date": b.due_date.strftime("%Y-%m-%d") if b.due_date else None,
                 "return_date": b.return_date.strftime("%Y-%m-%d") if b.return_date else None,
@@ -68,7 +67,8 @@ def get_borrowing_detail(request):
             "member_name": borrowing.user.name if borrowing.user else "",
             "book_id": borrowing.book_id,
             "book_title": borrowing.book.title if borrowing.book else "",
-            "isbn": borrowing.book.ISBN if borrowing.book else "",
+            "author": borrowing.book.author.name if (borrowing.book and borrowing.book.author) else "",
+            "category": borrowing.book.category.name if (borrowing.book and borrowing.book.category) else "",
             "borrow_date": borrowing.borrow_date.strftime("%Y-%m-%d") if borrowing.borrow_date else None,
             "due_date": borrowing.due_date.strftime("%Y-%m-%d") if borrowing.due_date else None,
             "return_date": borrowing.return_date.strftime("%Y-%m-%d") if borrowing.return_date else None,
@@ -101,8 +101,8 @@ def create_borrowing(request):
         request.response.status = 404
         return {"error": "Buku tidak ditemukan"}
 
-    # Cek ketersediaan
-    if book.copies_available <= 0:
+    # Cek ketersediaan stok
+    if book.stock <= 0:
         request.response.status = 400
         return {"error": "Buku tidak tersedia untuk dipinjam"}
 
@@ -130,8 +130,8 @@ def create_borrowing(request):
         fine=0
     )
     
-    # Kurangi available
-    book.copies_available -= 1
+    # Kurangi stok
+    book.stock -= 1
     
     db.add(borrowing)
     db.flush()
@@ -176,10 +176,10 @@ def return_borrowing(request):
     else:
         borrowing.fine = 0
 
-    # Tambah available
+    # Tambah stok kembali
     book = db.query(Book).filter(Book.id == borrowing.book_id).first()
     if book:
-        book.copies_available += 1
+        book.stock += 1
 
     db.flush()
 
@@ -205,11 +205,11 @@ def delete_borrowing(request):
         request.response.status = 404
         return {"error": "Data peminjaman tidak ditemukan"}
 
-    # Jika masih dipinjam, kembalikan dulu available book
+    # Jika masih dipinjam, kembalikan dulu stok buku
     if not borrowing.return_date:
         book = db.query(Book).filter(Book.id == borrowing.book_id).first()
         if book:
-            book.copies_available += 1
+            book.stock += 1
 
     db.delete(borrowing)
     return {"message": "Data peminjaman berhasil dihapus"}

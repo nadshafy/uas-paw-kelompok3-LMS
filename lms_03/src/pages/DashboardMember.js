@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { BookService } from "../services/api";
 
 const DashboardMember = ({ userData, isLoading }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const slides = [
     {
@@ -30,48 +33,69 @@ const DashboardMember = ({ userData, isLoading }) => {
   useEffect(() => {
     const slideInterval = setInterval(() => {
       setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    }, 4000); // Bergeser setiap 4 detik
+    }, 4000);
 
     return () => clearInterval(slideInterval); 
   }, [slides.length]);
 
-  // DATA DUMMY BUKU
-  const categories = [
-    { 
-      sectionTitle: "REKOMENDASI BUKU", 
-      items: [
-        { title: "Atomic Habits", author: "James Clear", category: "Self Dev", color: "bg-blue-500" },
-        { title: "Filosofi Teras", author: "Henry Manampiring", category: "Filosofi", color: "bg-emerald-500" },
-        { title: "Sapiens", author: "Yuval Noah Harari", category: "Sejarah", color: "bg-indigo-500" },
-        { title: "Psychology of Money", author: "Morgan Housel", category: "Keuangan", color: "bg-emerald-600" },
-        { title: "Rich Dad Poor Dad", author: "Robert Kiyosaki", category: "Bisnis", color: "bg-blue-600" },
-        { title: "Psychology of Money", author: "Morgan Housel", category: "Keuangan", color: "bg-emerald-600" }
-      ]
-    },
-    
-    { 
-      sectionTitle: "MAJALAH", 
-      items: [
-        { title: "Tempo", author: "Edisi Khusus", category: "Politik", color: "bg-red-500" },
-        { title: "Nat Geo", author: "Edisi Alam", category: "Sains", color: "bg-yellow-500" },
-        { title: "Forbes", author: "Indonesia", category: "Bisnis", color: "bg-emerald-500" },
-        { title: "Tempo", author: "Edisi Khusus", category: "Politik", color: "bg-red-500" },
-        { title: "Nat Geo", author: "Edisi Alam", category: "Sains", color: "bg-yellow-500" },
-        { title: "Forbes", author: "Indonesia", category: "Bisnis", color: "bg-emerald-500" },
-      ]
-    },
-    { 
-      sectionTitle: "FIKSI", 
-      items: [
-        { title: "Laut Bercerita", author: "Leila S. Chudori", category: "Novel", color: "bg-sky-500" },
-        { title: "Bumi Manusia", author: "Pramoedya A. Toer", category: "Sastra", color: "bg-amber-600" },
-        { title: "Harry Potter", author: "J.K. Rowling", category: "Fantasi", color: "bg-purple-600" },
-        { title: "Laut Bercerita", author: "Leila S. Chudori", category: "Novel", color: "bg-sky-500" },
-        { title: "Bumi Manusia", author: "Pramoedya A. Toer", category: "Sastra", color: "bg-amber-600" },
-        { title: "Harry Potter", author: "J.K. Rowling", category: "Fantasi", color: "bg-purple-600" },
-      ]
-    },
-  ];
+  // --- LOAD DATA FROM API ---
+  useEffect(() => {
+    loadBooks();
+  }, []);
+
+  const loadBooks = async () => {
+    try {
+      setLoading(true);
+      const response = await BookService.getAll();
+      console.log("Books API Response:", response); // Debug log
+      if (response.success) {
+        setBooks(response.data.books || []);
+      } else {
+        console.error("Failed to load books:", response.error);
+      }
+    } catch (error) {
+      console.error("Failed to load books:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- COLOR MAP BY CATEGORY ---
+  const getCategoryColor = (category) => {
+    const colorMap = {
+      'Self Dev': 'bg-blue-500',
+      'Filosofi': 'bg-emerald-500',
+      'Sejarah': 'bg-indigo-500',
+      'Keuangan': 'bg-emerald-600',
+      'Bisnis': 'bg-blue-600',
+      'Politik': 'bg-red-500',
+      'Sains': 'bg-yellow-500',
+      'Novel': 'bg-sky-500',
+      'Sastra': 'bg-amber-600',
+      'Fantasi': 'bg-purple-600',
+    };
+    return colorMap[category] || 'bg-gray-500';
+  };
+
+  // --- GROUP BOOKS BY CATEGORY ---
+  const groupedBooks = books.reduce((acc, book) => {
+    const category = book.category || 'Lainnya';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push({
+      title: book.title,
+      author: book.author,
+      category: category,
+      color: getCategoryColor(category)
+    });
+    return acc;
+  }, {});
+
+  const categories = Object.keys(groupedBooks).map(key => ({
+    sectionTitle: key.toUpperCase(),
+    items: groupedBooks[key]
+  }));
 
   // LOGIC FILTERING
   const filteredCategories = categories.map((section) => {
@@ -86,7 +110,7 @@ const DashboardMember = ({ userData, isLoading }) => {
     return { ...section, items: filteredItems };
   }).filter((section) => section.items.length > 0);
 
-  if (isLoading) {
+  if (isLoading || loading) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
         <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-emerald-600 mx-auto mb-4"></div>

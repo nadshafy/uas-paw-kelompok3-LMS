@@ -20,6 +20,11 @@ def includeme(config):
     config.add_route("api_borrowing_detail", "/api/borrowings/{id}")
     config.add_route("api_borrowing_return", "/api/borrowings/{id}/return")
 
+    # ===== API Statistics =====
+    config.add_route("api_statistics", "/api/statistics")
+    config.add_route("api_dashboard_librarian", "/api/dashboard/librarian")
+    config.add_route("api_dashboard_member", "/api/dashboard/member/{id}")
+
     # ===== Debug =====
     config.add_route("api_db_check", "/api/debug/db-check")
 

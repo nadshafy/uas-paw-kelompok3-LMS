@@ -9,86 +9,11 @@ import {
   Save,
   ArrowLeft,
 } from "lucide-react";
-
-// --- DATA DUMMY BUKU ---
-const initialBooksData = [
-  {
-    id: 1,
-    isbn: "978-6028519943",
-    title: "Atomic Habits",
-    author: "James Clear",
-    category: "Pengembangan Diri",
-    copies: 5,
-    available: 3,
-  },
-  {
-    id: 2,
-    isbn: "978-0743273565",
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    category: "Fiksi",
-    copies: 3,
-    available: 2,
-  },
-  {
-    id: 3,
-    isbn: "978-1503606685",
-    title: "Sapiens: A Brief History",
-    author: "Yuval Noah Harari",
-    category: "Sejarah",
-    copies: 4,
-    available: 4,
-  },
-  {
-    id: 4,
-    isbn: "978-0134757544",
-    title: "Clean Code",
-    author: "Robert C. Martin",
-    category: "Teknologi",
-    copies: 6,
-    available: 4,
-  },
-  {
-    id: 5,
-    isbn: "978-9791443831",
-    title: "Laskar Pelangi",
-    author: "Andrea Hirata",
-    category: "Fiksi",
-    copies: 8,
-    available: 5,
-  },
-  {
-    id: 6,
-    isbn: "978-0321765723",
-    title: "The Martian",
-    author: "Andy Weir",
-    category: "Fiksi Ilmiah",
-    copies: 3,
-    available: 1,
-  },
-  {
-    id: 7,
-    isbn: "978-1593275990",
-    title: "Eloquent JavaScript",
-    author: "Marijn Haverbeke",
-    category: "Teknologi",
-    copies: 4,
-    available: 4,
-  },
-  {
-    id: 8,
-    isbn: "978-0061120084",
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    category: "Fiksi Klasik",
-    copies: 5,
-    available: 3,
-  },
-];
+import { BookService, CategoryService } from "../services/api";
 
 const BookManagement = () => {
-  const [books, setBooks] = useState(initialBooksData);
-  const [filteredBooks, setFilteredBooks] = useState(initialBooksData);
+  const [books, setBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -103,43 +28,38 @@ const BookManagement = () => {
     available: "",
   });
   const [formErrors, setFormErrors] = useState({});
+  const [categories, setCategories] = useState(["All"]);
+  const [loading, setLoading] = useState(false);
 
-  const categories = [
-    "All",
-    "Pengembangan Diri",
-    "Fiksi",
-    "Sejarah",
-    "Teknologi",
-    "Fiksi Ilmiah",
-    "Fiksi Klasik",
-    "Biografi",
-    "Filosofi",
-  ];
+  // --- LOAD DATA FROM API ---
+  useEffect(() => {
+    loadBooks();
+    loadCategories();
+  }, []);
+
+  const loadBooks = async () => {
+    setLoading(true);
+    const result = await BookService.getAll(searchQuery, filterCategory);
+    if (result.success) {
+      setBooks(result.data.books);
+      setFilteredBooks(result.data.books);
+    } else {
+      alert("Gagal memuat data buku: " + result.error);
+    }
+    setLoading(false);
+  };
+
+  const loadCategories = async () => {
+    const result = await CategoryService.getAll();
+    if (result.success) {
+      setCategories(["All", ...result.data.categories]);
+    }
+  };
 
   // --- EFFECT: FILTER & SEARCH ---
   useEffect(() => {
-    let results = books;
-
-    // Filter by category
-    if (filterCategory !== "all") {
-      results = results.filter(
-        (book) => book.category.toLowerCase() === filterCategory.toLowerCase()
-      );
-    }
-
-    // Search by title, author, or ISBN
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      results = results.filter(
-        (book) =>
-          book.title.toLowerCase().includes(query) ||
-          book.author.toLowerCase().includes(query) ||
-          book.isbn.includes(query)
-      );
-    }
-
-    setFilteredBooks(results);
-  }, [searchQuery, filterCategory, books]);
+    loadBooks();
+  }, [searchQuery, filterCategory]);
 
   // --- HANDLERS ---
   const handleSearch = (e) => {
@@ -154,12 +74,11 @@ const BookManagement = () => {
     setModalMode("add");
     setCurrentBook(null);
     setFormData({
-      isbn: "",
       title: "",
       author: "",
       category: "",
-      copies: "",
-      available: "",
+      description: "",
+      stock: "",
     });
     setFormErrors({});
     setIsModalOpen(true);
@@ -169,21 +88,25 @@ const BookManagement = () => {
     setModalMode("edit");
     setCurrentBook(book);
     setFormData({
-      isbn: book.isbn,
       title: book.title,
       author: book.author,
       category: book.category,
-      copies: book.copies.toString(),
-      available: book.available.toString(),
+      description: book.description || "",
+      stock: book.stock.toString(),
     });
     setFormErrors({});
     setIsModalOpen(true);
   };
 
-  const handleDeleteBook = (bookId) => {
+  const handleDeleteBook = async (bookId) => {
     if (window.confirm("Apakah Anda yakin ingin menghapus buku ini?")) {
-      setBooks(books.filter((book) => book.id !== bookId));
-      alert("Buku berhasil dihapus!");
+      const result = await BookService.delete(bookId);
+      if (result.success) {
+        alert("Buku berhasil dihapus!");
+        loadBooks();
+      } else {
+        alert("Gagal menghapus buku: " + result.error);
+      }
     }
   };
 
@@ -199,58 +122,50 @@ const BookManagement = () => {
   const validateForm = () => {
     const errors = {};
 
-    if (!formData.isbn.trim()) errors.isbn = "ISBN wajib diisi";
     if (!formData.title.trim()) errors.title = "Judul buku wajib diisi";
     if (!formData.author.trim()) errors.author = "Nama penulis wajib diisi";
     if (!formData.category) errors.category = "Kategori wajib dipilih";
-    if (!formData.copies || parseInt(formData.copies) < 1)
-      errors.copies = "Jumlah copy minimal 1";
-    if (!formData.available || parseInt(formData.available) < 0)
-      errors.available = "Jumlah available tidak boleh negatif";
-    if (parseInt(formData.available) > parseInt(formData.copies))
-      errors.available = "Available tidak boleh lebih dari total copies";
+    if (!formData.stock || parseInt(formData.stock) < 1)
+      errors.stock = "Jumlah stok minimal 1";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
+    setLoading(true);
+
+    const bookData = {
+      title: formData.title,
+      author: formData.author,
+      category: formData.category,
+      description: formData.description || "",
+      stock: parseInt(formData.stock),
+    };
+
     if (modalMode === "add") {
-      // Add new book
-      const newBook = {
-        id: books.length > 0 ? Math.max(...books.map((b) => b.id)) + 1 : 1,
-        isbn: formData.isbn,
-        title: formData.title,
-        author: formData.author,
-        category: formData.category,
-        copies: parseInt(formData.copies),
-        available: parseInt(formData.available),
-      };
-      setBooks([...books, newBook]);
-      alert("Buku berhasil ditambahkan!");
+      const result = await BookService.create(bookData);
+      if (result.success) {
+        alert("Buku berhasil ditambahkan!");
+        setIsModalOpen(false);
+        loadBooks();
+      } else {
+        alert("Gagal menambahkan buku: " + result.error);
+      }
     } else {
-      // Edit existing book
-      setBooks(
-        books.map((book) =>
-          book.id === currentBook.id
-            ? {
-                ...book,
-                isbn: formData.isbn,
-                title: formData.title,
-                author: formData.author,
-                category: formData.category,
-                copies: parseInt(formData.copies),
-                available: parseInt(formData.available),
-              }
-            : book
-        )
-      );
-      alert("Buku berhasil diupdate!");
+      const result = await BookService.update(currentBook.id, bookData);
+      if (result.success) {
+        alert("Buku berhasil diupdate!");
+        setIsModalOpen(false);
+        loadBooks();
+      } else {
+        alert("Gagal mengupdate buku: " + result.error);
+      }
     }
 
-    setIsModalOpen(false);
+    setLoading(false);
   };
 
   const handleCloseModal = () => {
@@ -335,16 +250,14 @@ const BookManagement = () => {
           <p className="text-3xl font-bold">{books.length}</p>
         </div>
         <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-white">
-          <p className="text-sm opacity-80 mb-1">Total Copies</p>
+          <p className="text-sm opacity-80 mb-1">Total Stok</p>
           <p className="text-3xl font-bold">
-            {books.reduce((sum, book) => sum + book.copies, 0)}
+            {books.reduce((sum, book) => sum + book.stock, 0)}
           </p>
         </div>
         <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-white">
-          <p className="text-sm opacity-80 mb-1">Available</p>
-          <p className="text-3xl font-bold">
-            {books.reduce((sum, book) => sum + book.available, 0)}
-          </p>
+          <p className="text-sm opacity-80 mb-1">Kategori</p>
+          <p className="text-3xl font-bold">{categories.length - 1}</p>
         </div>
       </div>
 
@@ -354,24 +267,28 @@ const BookManagement = () => {
           <thead className="bg-gray-100 text-gray-800 uppercase font-bold border-b-2 border-gray-300">
             <tr>
               <th className="px-6 py-4">No</th>
-              <th className="px-6 py-4">ISBN</th>
               <th className="px-6 py-4">Judul Buku</th>
               <th className="px-6 py-4">Penulis</th>
               <th className="px-6 py-4">Kategori</th>
-              <th className="px-6 py-4 text-center">Copies</th>
-              <th className="px-6 py-4 text-center">Available</th>
+              <th className="px-6 py-4">Deskripsi</th>
+              <th className="px-6 py-4 text-center">Stok</th>
               <th className="px-6 py-4 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredBooks.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                  Loading...
+                </td>
+              </tr>
+            ) : filteredBooks.length > 0 ? (
               filteredBooks.map((book, index) => (
                 <tr
                   key={book.id}
                   className="hover:bg-gray-50 transition-colors duration-200"
                 >
                   <td className="px-6 py-4 font-medium">{index + 1}</td>
-                  <td className="px-6 py-4 font-mono text-xs">{book.isbn}</td>
                   <td className="px-6 py-4 font-semibold text-gray-800">
                     {book.title}
                   </td>
@@ -381,18 +298,18 @@ const BookManagement = () => {
                       {book.category}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-center font-semibold">
-                    {book.copies}
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {book.description || "-"}
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span
                       className={`inline-block px-3 py-1 text-xs font-bold rounded-full ${
-                        book.available > 0
+                        book.stock > 0
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
                       }`}
                     >
-                      {book.available}
+                      {book.stock}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -418,7 +335,7 @@ const BookManagement = () => {
             ) : (
               <tr>
                 <td
-                  colSpan="8"
+                  colSpan="7"
                   className="px-6 py-12 text-center text-gray-500"
                 >
                   <div className="flex flex-col items-center justify-center">
@@ -457,28 +374,6 @@ const BookManagement = () => {
 
             {/* Modal Body */}
             <div className="p-6 space-y-4">
-              {/* ISBN */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  ISBN <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="isbn"
-                  value={formData.isbn}
-                  onChange={handleInputChange}
-                  placeholder="978-1234567890"
-                  className={`w-full px-4 py-3 border-2 rounded-xl outline-none transition-all ${
-                    formErrors.isbn
-                      ? "border-red-500 focus:ring-2 focus:ring-red-200"
-                      : "border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-                  }`}
-                />
-                {formErrors.isbn && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.isbn}</p>
-                )}
-              </div>
-
               {/* Title */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -556,55 +451,44 @@ const BookManagement = () => {
                 )}
               </div>
 
-              {/* Copies & Available */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Total Copies <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="copies"
-                    value={formData.copies}
-                    onChange={handleInputChange}
-                    min="1"
-                    placeholder="0"
-                    className={`w-full px-4 py-3 border-2 rounded-xl outline-none transition-all ${
-                      formErrors.copies
-                        ? "border-red-500 focus:ring-2 focus:ring-red-200"
-                        : "border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-                    }`}
-                  />
-                  {formErrors.copies && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {formErrors.copies}
-                    </p>
-                  )}
-                </div>
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Deskripsi
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Deskripsi buku (opsional)"
+                  rows="3"
+                  className="w-full px-4 py-3 border-2 rounded-xl outline-none transition-all border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Available <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="available"
-                    value={formData.available}
-                    onChange={handleInputChange}
-                    min="0"
-                    placeholder="0"
-                    className={`w-full px-4 py-3 border-2 rounded-xl outline-none transition-all ${
-                      formErrors.available
-                        ? "border-red-500 focus:ring-2 focus:ring-red-200"
-                        : "border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-                    }`}
-                  />
-                  {formErrors.available && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {formErrors.available}
-                    </p>
-                  )}
-                </div>
+              {/* Stock */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Stok <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleInputChange}
+                  min="1"
+                  placeholder="0"
+                  className={`w-full px-4 py-3 border-2 rounded-xl outline-none transition-all ${
+                    formErrors.stock
+                      ? "border-red-500 focus:ring-2 focus:ring-red-200"
+                      : "border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                  }`}
+                />
+                {formErrors.stock && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.stock}
+                  </p>
+                )}
               </div>
             </div>
 
