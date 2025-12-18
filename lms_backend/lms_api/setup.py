@@ -20,6 +20,8 @@ requires = [
     'SQLAlchemy',
     'transaction',
     'zope.sqlalchemy',
+    'bcrypt',
+    'psycopg2-binary',
 ]
 
 tests_require = [
@@ -56,6 +58,7 @@ setup(
         ],
         'console_scripts': [
             'initialize_lms_api_db=lms_api.scripts.initialize_db:main',
+            'init_database=lms_api.scripts.init_database:main',
         ],
     },
 )
