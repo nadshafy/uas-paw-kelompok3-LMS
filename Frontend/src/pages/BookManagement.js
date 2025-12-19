@@ -9,6 +9,7 @@ import {
   Save,
   ArrowLeft,
 } from "lucide-react";
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
 
 // --- DATA DUMMY BUKU ---
@@ -86,10 +87,13 @@ const initialBooksData = [
     available: 3,
   },
 ];
+=======
+import { BookService, CategoryService } from "../services/api";
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
 
 const BookManagement = () => {
-  const [books, setBooks] = useState(initialBooksData);
-  const [filteredBooks, setFilteredBooks] = useState(initialBooksData);
+  const [books, setBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -115,22 +119,41 @@ const BookManagement = () => {
     available: "",
   });
   const [formErrors, setFormErrors] = useState({});
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
+=======
+  const [categories, setCategories] = useState(["All"]);
+  const [loading, setLoading] = useState(false);
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
 
-  const categories = [
-    "All",
-    "Pengembangan Diri",
-    "Fiksi",
-    "Sejarah",
-    "Teknologi",
-    "Fiksi Ilmiah",
-    "Fiksi Klasik",
-    "Biografi",
-    "Filosofi",
-  ];
+  // --- LOAD DATA FROM API ---
+  useEffect(() => {
+    loadBooks();
+    loadCategories();
+  }, []);
+
+  const loadBooks = async () => {
+    setLoading(true);
+    const result = await BookService.getAll(searchQuery, filterCategory);
+    if (result.success) {
+      setBooks(result.data.books);
+      setFilteredBooks(result.data.books);
+    } else {
+      alert("Gagal memuat data buku: " + result.error);
+    }
+    setLoading(false);
+  };
+
+  const loadCategories = async () => {
+    const result = await CategoryService.getAll();
+    if (result.success) {
+      setCategories(["All", ...result.data.categories]);
+    }
+  };
 
   // --- EFFECT: FILTER & SEARCH ---
   useEffect(() => {
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
     let results = books;
 
     // Filter by category
@@ -187,6 +210,10 @@ const BookManagement = () => {
     loadBooks();
   }, [searchQuery, filterCategory]);
 >>>>>>> backend_update
+=======
+    loadBooks();
+  }, [searchQuery, filterCategory]);
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
 
   // --- HANDLERS ---
   const handleSearch = (e) => {
@@ -201,6 +228,7 @@ const BookManagement = () => {
     setModalMode("add");
     setCurrentBook(null);
     setFormData({
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
       isbn: "",
       title: "",
@@ -215,6 +243,13 @@ const BookManagement = () => {
       description: "",
       stock: "",
 >>>>>>> backend_update
+=======
+      title: "",
+      author: "",
+      category: "",
+      description: "",
+      stock: "",
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
     });
     setFormErrors({});
     setIsModalOpen(true);
@@ -224,6 +259,7 @@ const BookManagement = () => {
     setModalMode("edit");
     setCurrentBook(book);
     setFormData({
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
       isbn: book.isbn,
       title: book.title,
@@ -238,11 +274,19 @@ const BookManagement = () => {
       description: book.description || "",
       stock: book.stock.toString(),
 >>>>>>> backend_update
+=======
+      title: book.title,
+      author: book.author,
+      category: book.category,
+      description: book.description || "",
+      stock: book.stock.toString(),
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
     });
     setFormErrors({});
     setIsModalOpen(true);
   };
 
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
   const handleDeleteBook = (bookId) => {
     if (window.confirm("Apakah Anda yakin ingin menghapus buku ini?")) {
@@ -251,6 +295,10 @@ const BookManagement = () => {
 =======
   const handleDeleteBook = async (bookId) => {
     if (window.confirm("Apakah Anda yakin ingin menghapus buku ini?")) {
+=======
+  const handleDeleteBook = async (bookId) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus buku ini?")) {
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
       const result = await BookService.delete(bookId);
       if (result.success) {
         alert("Buku berhasil dihapus!");
@@ -258,7 +306,10 @@ const BookManagement = () => {
       } else {
         alert("Gagal menghapus buku: " + result.error);
       }
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 >>>>>>> backend_update
+=======
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
     }
   };
 
@@ -274,6 +325,7 @@ const BookManagement = () => {
   const validateForm = () => {
     const errors = {};
 
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
     if (!formData.isbn.trim()) errors.isbn = "ISBN wajib diisi";
     if (!formData.title.trim()) errors.title = "Judul buku wajib diisi";
@@ -292,48 +344,57 @@ const BookManagement = () => {
     if (!formData.stock || parseInt(formData.stock) < 1)
       errors.stock = "Jumlah stok minimal 1";
 >>>>>>> backend_update
+=======
+    if (!formData.title.trim()) errors.title = "Judul buku wajib diisi";
+    if (!formData.author.trim()) errors.author = "Nama penulis wajib diisi";
+    if (!formData.category) errors.category = "Kategori wajib dipilih";
+    if (!formData.stock || parseInt(formData.stock) < 1)
+      errors.stock = "Jumlah stok minimal 1";
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
   const handleSubmit = () => {
+=======
+  const handleSubmit = async () => {
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
     if (!validateForm()) return;
 
+    setLoading(true);
+
+    const bookData = {
+      title: formData.title,
+      author: formData.author,
+      category: formData.category,
+      description: formData.description || "",
+      stock: parseInt(formData.stock),
+    };
+
     if (modalMode === "add") {
-      // Add new book
-      const newBook = {
-        id: books.length > 0 ? Math.max(...books.map((b) => b.id)) + 1 : 1,
-        isbn: formData.isbn,
-        title: formData.title,
-        author: formData.author,
-        category: formData.category,
-        copies: parseInt(formData.copies),
-        available: parseInt(formData.available),
-      };
-      setBooks([...books, newBook]);
-      alert("Buku berhasil ditambahkan!");
+      const result = await BookService.create(bookData);
+      if (result.success) {
+        alert("Buku berhasil ditambahkan!");
+        setIsModalOpen(false);
+        loadBooks();
+      } else {
+        alert("Gagal menambahkan buku: " + result.error);
+      }
     } else {
-      // Edit existing book
-      setBooks(
-        books.map((book) =>
-          book.id === currentBook.id
-            ? {
-                ...book,
-                isbn: formData.isbn,
-                title: formData.title,
-                author: formData.author,
-                category: formData.category,
-                copies: parseInt(formData.copies),
-                available: parseInt(formData.available),
-              }
-            : book
-        )
-      );
-      alert("Buku berhasil diupdate!");
+      const result = await BookService.update(currentBook.id, bookData);
+      if (result.success) {
+        alert("Buku berhasil diupdate!");
+        setIsModalOpen(false);
+        loadBooks();
+      } else {
+        alert("Gagal mengupdate buku: " + result.error);
+      }
     }
 
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
     setIsModalOpen(false);
 =======
   const handleSubmit = async () => {
@@ -371,6 +432,9 @@ const BookManagement = () => {
 
     setLoading(false);
 >>>>>>> backend_update
+=======
+    setLoading(false);
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
   };
 
   const handleCloseModal = () => {
@@ -455,13 +519,18 @@ const BookManagement = () => {
           <p className="text-3xl font-bold">{books.length}</p>
         </div>
         <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-white">
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
           <p className="text-sm opacity-80 mb-1">Total Copies</p>
+=======
+          <p className="text-sm opacity-80 mb-1">Total Stok</p>
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
           <p className="text-3xl font-bold">
-            {books.reduce((sum, book) => sum + book.copies, 0)}
+            {books.reduce((sum, book) => sum + book.stock, 0)}
           </p>
         </div>
         <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-white">
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
           <p className="text-sm opacity-80 mb-1">Available</p>
           <p className="text-3xl font-bold">
             {books.reduce((sum, book) => sum + book.available, 0)}
@@ -476,6 +545,10 @@ const BookManagement = () => {
           <p className="text-sm opacity-80 mb-1">Kategori</p>
           <p className="text-3xl font-bold">{categories.length - 1}</p>
 >>>>>>> backend_update
+=======
+          <p className="text-sm opacity-80 mb-1">Kategori</p>
+          <p className="text-3xl font-bold">{categories.length - 1}</p>
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
         </div>
       </div>
 
@@ -485,6 +558,7 @@ const BookManagement = () => {
           <thead className="bg-gray-100 text-gray-800 uppercase font-bold border-b-2 border-gray-300">
             <tr>
               <th className="px-6 py-4">No</th>
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
               <th className="px-6 py-4">ISBN</th>
               <th className="px-6 py-4">Judul Buku</th>
@@ -499,13 +573,23 @@ const BookManagement = () => {
               <th className="px-6 py-4">Deskripsi</th>
               <th className="px-6 py-4 text-center">Stok</th>
 >>>>>>> backend_update
+=======
+              <th className="px-6 py-4">Judul Buku</th>
+              <th className="px-6 py-4">Penulis</th>
+              <th className="px-6 py-4">Kategori</th>
+              <th className="px-6 py-4">Deskripsi</th>
+              <th className="px-6 py-4 text-center">Stok</th>
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
               <th className="px-6 py-4 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
             {filteredBooks.length > 0 ? (
 =======
+=======
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
             {loading ? (
               <tr>
                 <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
@@ -513,17 +597,23 @@ const BookManagement = () => {
                 </td>
               </tr>
             ) : filteredBooks.length > 0 ? (
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 >>>>>>> backend_update
+=======
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
               filteredBooks.map((book, index) => (
                 <tr
                   key={book.id}
                   className="hover:bg-gray-50 transition-colors duration-200"
                 >
                   <td className="px-6 py-4 font-medium">{index + 1}</td>
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
                   <td className="px-6 py-4 font-mono text-xs">{book.isbn}</td>
 =======
 >>>>>>> backend_update
+=======
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
                   <td className="px-6 py-4 font-semibold text-gray-800">
                     {book.title}
                   </td>
@@ -533,6 +623,7 @@ const BookManagement = () => {
                       {book.category}
                     </span>
                   </td>
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
                   <td className="px-6 py-4 text-center font-semibold">
                     {book.copies}
@@ -540,24 +631,36 @@ const BookManagement = () => {
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {book.description || "-"}
 >>>>>>> backend_update
+=======
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {book.description || "-"}
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span
                       className={`inline-block px-3 py-1 text-xs font-bold rounded-full ${
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
                         book.available > 0
 =======
                         book.stock > 0
 >>>>>>> backend_update
+=======
+                        book.stock > 0
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
                       }`}
                     >
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
                       {book.available}
 =======
                       {book.stock}
 >>>>>>> backend_update
+=======
+                      {book.stock}
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -583,11 +686,15 @@ const BookManagement = () => {
             ) : (
               <tr>
                 <td
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
                   colSpan="8"
 =======
                   colSpan="7"
 >>>>>>> backend_update
+=======
+                  colSpan="7"
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
                   className="px-6 py-12 text-center text-gray-500"
                 >
                   <div className="flex flex-col items-center justify-center">
@@ -626,6 +733,7 @@ const BookManagement = () => {
 
             {/* Modal Body */}
             <div className="p-6 space-y-4">
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
               {/* ISBN */}
               <div>
@@ -651,6 +759,8 @@ const BookManagement = () => {
 
 =======
 >>>>>>> backend_update
+=======
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
               {/* Title */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -728,6 +838,7 @@ const BookManagement = () => {
                 )}
               </div>
 
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 <<<<<<< HEAD
               {/* Copies & Available */}
               <div className="grid grid-cols-2 gap-4">
@@ -794,6 +905,23 @@ const BookManagement = () => {
                 />
               </div>
 
+=======
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Deskripsi
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Deskripsi buku (opsional)"
+                  rows="3"
+                  className="w-full px-4 py-3 border-2 rounded-xl outline-none transition-all border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                />
+              </div>
+
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
               {/* Stock */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -817,7 +945,10 @@ const BookManagement = () => {
                     {formErrors.stock}
                   </p>
                 )}
+<<<<<<< HEAD:Frontend/src/pages/BookManagement.js
 >>>>>>> backend_update
+=======
+>>>>>>> origin/backend:lms_03/src/pages/BookManagement.js
               </div>
             </div>
 

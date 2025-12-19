@@ -9,6 +9,7 @@ import {
   Search,
   LogOut,
 } from "lucide-react";
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
 <<<<<<< HEAD
 
 const simulatedBookData = [
@@ -86,6 +87,9 @@ const simulatedBookData = [
 =======
 import { BookService, CategoryService, API_BASE_URL } from "../services/api";
 >>>>>>> backend_update
+=======
+import { BookService, CategoryService, API_BASE_URL } from "../services/api";
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
 
 const DashboardLibrarian = () => {
   const navigate = useNavigate();
@@ -100,6 +104,7 @@ const DashboardLibrarian = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
 <<<<<<< HEAD
   const categories = [
     "All",
@@ -115,6 +120,11 @@ const DashboardLibrarian = () => {
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [books, setBooks] = useState([]);
 >>>>>>> backend_update
+=======
+  const [categories, setCategories] = useState(["All"]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [books, setBooks] = useState([]);
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -131,6 +141,7 @@ const DashboardLibrarian = () => {
       email: userEmail || "librarian@library.com",
     });
 
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
 <<<<<<< HEAD
     setTimeout(() => {
       setStats({
@@ -139,11 +150,51 @@ const DashboardLibrarian = () => {
         activeBorrows: 89,
         overdueBooks: 5,
       });
+=======
+    // Load data from API
+    loadDashboardData();
+    loadBooks();
+    loadCategories();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/dashboard/librarian`);
+      const data = await response.json();
+      
+      if (data.dashboard) {
+        setStats({
+          totalBooks: data.dashboard.books.total || 0,
+          totalMembers: data.dashboard.users.total_members || 0,
+          activeBorrows: data.dashboard.borrowings.active || 0,
+          overdueBooks: data.dashboard.borrowings.late || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+    } finally {
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
       setIsLoading(false);
-    }, 800);
-  }, [navigate]);
+    }
+  };
+
+  const loadBooks = async () => {
+    const result = await BookService.getAll(searchQuery, filterCategory);
+    if (result.success) {
+      setBooks(result.data.books);
+      setFilteredBooks(result.data.books.slice(0, 10)); // Show first 10
+    }
+  };
+
+  const loadCategories = async () => {
+    const result = await CategoryService.getAll();
+    if (result.success) {
+      setCategories(["All", ...result.data.categories]);
+    }
+  };
 
   useEffect(() => {
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
     let results = simulatedBookData;
 =======
     // Load data from API
@@ -190,6 +241,9 @@ const DashboardLibrarian = () => {
   useEffect(() => {
     let results = books.slice(0, 10); // Limit to 10 for dashboard
 >>>>>>> backend_update
+=======
+    let results = books.slice(0, 10); // Limit to 10 for dashboard
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
 
     if (filterCategory !== "all") {
       results = results.filter(
@@ -202,21 +256,29 @@ const DashboardLibrarian = () => {
       results = results.filter(
         (book) =>
           book.title.toLowerCase().includes(query) ||
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
 <<<<<<< HEAD
           book.author.toLowerCase().includes(query) ||
           book.isbn.includes(query)
 =======
           book.author.toLowerCase().includes(query)
 >>>>>>> backend_update
+=======
+          book.author.toLowerCase().includes(query)
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
       );
     }
 
     setFilteredBooks(results);
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
 <<<<<<< HEAD
   }, [searchQuery, filterCategory]);
 =======
   }, [searchQuery, filterCategory, books]);
 >>>>>>> backend_update
+=======
+  }, [searchQuery, filterCategory, books]);
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -413,10 +475,13 @@ const DashboardLibrarian = () => {
           <thead className="bg-gray-100 text-gray-800 uppercase font-bold border-b border-gray-200">
             <tr>
               <th className="px-6 py-4">No</th>
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
 <<<<<<< HEAD
               <th className="px-6 py-4">ISBN</th>
 =======
 >>>>>>> backend_update
+=======
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
               <th className="px-6 py-4">Nama Buku</th>
               <th className="px-6 py-4">Penulis</th>
               <th className="px-6 py-4">Kategori</th>
@@ -424,12 +489,17 @@ const DashboardLibrarian = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredBooks.length > 0 ? (
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
 <<<<<<< HEAD
               filteredBooks.map((book) => (
+=======
+              filteredBooks.map((book, index) => (
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
                 <tr
-                  key={book.isbn}
+                  key={book.id}
                   className="hover:bg-gray-50 transition-colors duration-200"
                 >
+<<<<<<< HEAD:Frontend/src/pages/DashboardLibrarian.js
                   <td className="px-6 py-4 font-medium">{book.no}</td>
                   <td className="px-6 py-4 font-mono text-xs text-black-1000">
                     {book.isbn}
@@ -442,6 +512,9 @@ const DashboardLibrarian = () => {
                 >
                   <td className="px-6 py-4 font-medium">{index + 1}</td>
 >>>>>>> backend_update
+=======
+                  <td className="px-6 py-4 font-medium">{index + 1}</td>
+>>>>>>> origin/backend:lms_03/src/pages/DashboardLibrarian.js
                   <td className="px-6 py-4 text-gray-800">{book.title}</td>
                   <td className="px-6 py-4">{book.author}</td>
                   <td className="px-6 py-4">

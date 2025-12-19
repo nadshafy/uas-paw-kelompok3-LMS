@@ -74,6 +74,7 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
+<<<<<<< HEAD:Frontend/src/pages/AuthPage.js
 <<<<<<< HEAD
       setTimeout(() => {
         localStorage.setItem("token", "dummy-token-" + Date.now());
@@ -100,6 +101,25 @@ const AuthPage = () => {
           throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
         });
 
+=======
+      if (currentPage === "login") {
+        // LOGIN - Call backend API
+        console.log("Calling login API...");
+        const response = await fetch("http://localhost:6543/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        }).catch(err => {
+          console.error("Network error:", err);
+          throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
+        });
+
+>>>>>>> origin/backend:lms_03/src/pages/AuthPage.js
         console.log("Response status:", response.status);
         const data = await response.json();
         console.log("Response data:", data);
@@ -120,16 +140,66 @@ const AuthPage = () => {
 
         // Redirect based on role from backend
         if (data.user.role === "librarian") {
+<<<<<<< HEAD:Frontend/src/pages/AuthPage.js
 >>>>>>> backend_update
+=======
+>>>>>>> origin/backend:lms_03/src/pages/AuthPage.js
           navigate("/dashboard-librarian");
         } else {
           navigate("/dashboard-member");
         }
+<<<<<<< HEAD:Frontend/src/pages/AuthPage.js
 <<<<<<< HEAD
+=======
+      } else {
+        // SIGNUP - Call backend API
+        console.log("Calling register API...");
+        const response = await fetch("http://localhost:6543/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: formData.role,
+          }),
+        }).catch(err => {
+          console.error("Network error:", err);
+          throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
+        });
+>>>>>>> origin/backend:lms_03/src/pages/AuthPage.js
 
-        setIsLoading(false);
-      }, 1500);
+        console.log("Response status:", response.status);
+        const data = await response.json();
+        console.log("Response data:", data);
+
+        if (!response.ok) {
+          alert(data.error || "Register gagal");
+          setIsLoading(false);
+          return;
+        }
+
+        // Auto login after signup
+        localStorage.setItem("token", "token-" + data.user.id);
+        localStorage.setItem("userName", data.user.name);
+        localStorage.setItem("userEmail", data.user.email);
+        localStorage.setItem("userRole", data.user.role);
+
+        console.log("Register success, redirecting to:", data.user.role === "librarian" ? "librarian" : "member");
+
+        // Redirect based on role from backend
+        if (data.user.role === "librarian") {
+          navigate("/dashboard-librarian");
+        } else {
+          navigate("/dashboard-member");
+        }
+      }
+
+      setIsLoading(false);
     } catch (error) {
+<<<<<<< HEAD:Frontend/src/pages/AuthPage.js
 =======
       } else {
         // SIGNUP - Call backend API
@@ -180,6 +250,9 @@ const AuthPage = () => {
     } catch (error) {
       console.error("Error in handleSubmit:", error);
 >>>>>>> backend_update
+=======
+      console.error("Error in handleSubmit:", error);
+>>>>>>> origin/backend:lms_03/src/pages/AuthPage.js
       alert("Error: " + error.message);
       setIsLoading(false);
     }
