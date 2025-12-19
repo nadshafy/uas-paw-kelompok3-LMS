@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, CheckCircle, XCircle, Calendar, X } from "lucide-react";
+import { BorrowingService } from "../services/api";
 
 const BookDetail = () => {
   const location = useLocation();
@@ -14,32 +15,81 @@ const BookDetail = () => {
     color: "bg-gray-400"
   };
 
-  const isAvailable = true; 
+  const isAvailable = (book?.stock ?? 0) > 0;
+  
+  // State untuk modal dan tanggal
+  const [showModal, setShowModal] = useState(false);
+  const [borrowDate, setBorrowDate] = useState(new Date().toISOString().split("T")[0]);
+  const [dueDate, setDueDate] = useState(() => {
+    const defaultDue = new Date();
+    defaultDue.setDate(defaultDue.getDate() + 7);
+    return defaultDue.toISOString().split("T")[0];
+  });
 
-  // FUNGSI PEMINJAMAN BUKU 
+  const getCurrentUser = () => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) return JSON.parse(userStr);
+
+      const userId = localStorage.getItem("userId");
+      const userName = localStorage.getItem("userName");
+      const userEmail = localStorage.getItem("userEmail");
+      const userRole = localStorage.getItem("userRole");
+      if (userId) {
+        return {
+          id: parseInt(userId, 10),
+          name: userName,
+          email: userEmail,
+          role: userRole,
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error("[BookDetail] Failed to parse user data", err);
+      return null;
+    }
+  };
+
+  // FUNGSI PEMINJAMAN BUKU - Buka Modal
   const handleBorrow = () => {
-    const existingHistory = JSON.parse(localStorage.getItem("memberHistory")) || [];
-    const activeLoansCount = existingHistory.filter(item => item.status === "Dipinjam").length;
-
-    if (activeLoansCount >= 3) {
-      alert("PEMINJAMAN DITOLAK!\n\nAnda sedang meminjam 3 buku. Harap kembalikan salah satu buku terlebih dahulu sebelum meminjam yang baru.");
-      return; // Menghentikan peminjaman karena sudah 3 kali meminjam 
+    const user = getCurrentUser();
+    if (!user?.id) {
+      alert("Anda perlu login sebagai member sebelum meminjam.");
+      navigate("/auth");
+      return;
     }
 
-    const newLoan = {
-      id: Date.now(), 
-      title: book.title,
-      author: book.author,
-      category: book.category,
-      coverColor: book.color,
-      borrowDate: new Date().toLocaleDateString('id-ID'), // Tanggal Hari Ini
-      returnDate: "-", // Belum dikembalikan
-      status: "Dipinjam"
-    };
+    if (!book?.id) {
+      alert("ID buku tidak ditemukan.");
+      return;
+    }
 
-    const updatedHistory = [newLoan, ...existingHistory];
-    localStorage.setItem("memberHistory", JSON.stringify(updatedHistory));
+    setShowModal(true);
+  };
 
+  // KONFIRMASI PEMINJAMAN dengan tanggal yang dipilih
+  const confirmBorrow = async () => {
+    const user = getCurrentUser();
+    
+    // Validasi tanggal
+    if (new Date(dueDate) <= new Date(borrowDate)) {
+      alert("Tanggal pengembalian harus setelah tanggal peminjaman!");
+      return;
+    }
+
+    const result = await BorrowingService.create({
+      member_id: user.id,
+      book_id: book.id,
+      borrow_date: borrowDate,
+      due_date: dueDate,
+    });
+
+    if (!result.success) {
+      alert(result.error || "Gagal meminjam buku.");
+      return;
+    }
+
+    setShowModal(false);
     alert(`Berhasil meminjam buku "${book.title}"!`);
     navigate("/member/myborrows");
   };
@@ -174,6 +224,92 @@ const BookDetail = () => {
 
         </div>
       </div>
+
+      {/* Modal Konfirmasi Peminjaman */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative animate-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X size={24} className="text-gray-600" />
+            </button>
+
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen size={32} className="text-emerald-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Konfirmasi Peminjaman</h3>
+              <p className="text-gray-600">Atur jadwal peminjaman buku Anda</p>
+            </div>
+
+            {/* Book Info */}
+            <div className="bg-emerald-50 rounded-2xl p-4 mb-6 border border-emerald-100">
+              <h4 className="font-bold text-gray-900 mb-1 text-lg">{book.title}</h4>
+              <p className="text-sm text-gray-600">oleh {book.author}</p>
+            </div>
+
+            {/* Date Inputs */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <Calendar size={16} className="text-emerald-600" />
+                  Tanggal Peminjaman
+                </label>
+                <input
+                  type="date"
+                  value={borrowDate}
+                  onChange={(e) => setBorrowDate(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                  min={new Date().toISOString().split("T")[0]}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <Calendar size={16} className="text-emerald-600" />
+                  Tanggal Pengembalian
+                </label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                  min={borrowDate}
+                />
+              </div>
+            </div>
+
+            {/* Info durasi */}
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6">
+              <p className="text-sm text-amber-800">
+                <span className="font-semibold">Catatan:</span> Durasi peminjaman adalah{" "}
+                {Math.ceil((new Date(dueDate) - new Date(borrowDate)) / (1000 * 60 * 60 * 24))}{" "}
+                hari
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmBorrow}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5"
+              >
+                Konfirmasi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

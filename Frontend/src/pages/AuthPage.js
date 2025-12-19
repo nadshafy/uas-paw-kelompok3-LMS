@@ -70,20 +70,77 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      setTimeout(() => {
-        localStorage.setItem("token", "dummy-token-" + Date.now());
-        localStorage.setItem("userName", formData.name || "User");
-        localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("userRole", formData.role);
+      // CRITICAL FIX: Clear all old session data first to prevent multi-tab conflicts
+      localStorage.clear();
+      sessionStorage.clear();
 
-        if (formData.role === "librarian") {
+      if (currentPage === "login") {
+        // Hit API login backend
+        const response = await fetch("http://localhost:6543/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Login gagal");
+        }
+
+        // Save session with data from backend
+        const user = result.user;
+        localStorage.setItem("token", "auth-" + user.id + "-" + Date.now());
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userName", user.name);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("userRole", user.role);
+
+        // Navigate based on actual role from database
+        if (user.role === "librarian") {
           navigate("/dashboard-librarian");
         } else {
           navigate("/dashboard-member");
         }
+      } else {
+        // Hit API register backend
+        const response = await fetch("http://localhost:6543/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: formData.role,
+          }),
+        });
 
-        setIsLoading(false);
-      }, 1500);
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Register gagal");
+        }
+
+        // After register, save session
+        const user = result.user;
+        localStorage.setItem("token", "auth-" + user.id + "-" + Date.now());
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userName", user.name);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("userRole", user.role);
+
+        // Navigate based on role
+        if (user.role === "librarian") {
+          navigate("/dashboard-librarian");
+        } else {
+          navigate("/dashboard-member");
+        }
+      }
+
+      setIsLoading(false);
     } catch (error) {
       alert("Error: " + error.message);
       setIsLoading(false);

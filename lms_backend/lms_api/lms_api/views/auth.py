@@ -28,8 +28,7 @@ def register(request):
 
     hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-    connection = db.connection()
-    result = connection.execute(
+    result = db.execute(
         text("""
             INSERT INTO users (name, email, password, role)
             VALUES (:name, :email, :password, :role)
@@ -38,7 +37,6 @@ def register(request):
         {"name": name, "email": email, "password": hashed, "role": role}
     )
     row = result.fetchone()
-    connection.commit()
     
     return {"message": "register berhasil", "user": dict(row._mapping)}
 

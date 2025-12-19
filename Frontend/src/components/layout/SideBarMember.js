@@ -65,6 +65,26 @@ const SidebarMember = () => {
         isActive: location.pathname === "/member/myborrows", 
         onClick: handleNavigate
       }),
+    ),
+
+    // Logout Button at bottom
+    React.createElement(
+      "div",
+      { className: "mt-auto pt-4 border-t border-gray-800" },
+      React.createElement(
+        "button",
+        {
+          onClick: () => {
+            // CRITICAL: Clear all session data
+            localStorage.clear();
+            sessionStorage.clear();
+            navigate("/");
+          },
+          className: "flex items-center space-x-3 p-3 rounded-xl w-full text-gray-400 hover:bg-red-900/20 hover:text-red-400 transition-all duration-200 group cursor-pointer"
+        },
+        React.createElement(LogOut, { size: 20, className: "transition-colors" }),
+        React.createElement("span", { className: "font-medium" }, "Logout")
+      )
     )
   );
 };

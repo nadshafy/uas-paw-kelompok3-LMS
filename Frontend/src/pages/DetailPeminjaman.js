@@ -12,6 +12,7 @@ import {
   CheckSquare,
   Banknote,
 } from "lucide-react";
+import { BorrowingService } from "../services/api";
 
 const DetailPeminjaman = () => {
   const location = useLocation();
@@ -52,7 +53,7 @@ const DetailPeminjaman = () => {
   }
 
   // LOGIKA HITUNG DENDA (REALTIME BERDASARKAN INPUT TANGGAL)
-  const dueDate = data.tglKembali;
+  const dueDate = data.due_date || data.tglKembali;
 
   let potentialDenda = 0;
   let terlambatHari = 0;
@@ -69,35 +70,35 @@ const DetailPeminjaman = () => {
   const displayDenda =
     currentStatus === "Dikembalikan" ? savedDenda : potentialDenda;
 
-  const handleKembalikan = () => {
+  const handleKembalikan = async () => {
     const confirmMessage =
       potentialDenda > 0
         ? `Pengembalian pada ${tglInput}. Terlambat ${terlambatHari} hari. Denda: Rp ${potentialDenda.toLocaleString()}. Lanjutkan?`
         : `Konfirmasi pengembalian buku pada tanggal ${tglInput}?`;
 
     if (window.confirm(confirmMessage)) {
-      setCurrentStatus("Dikembalikan");
-      setSavedDenda(potentialDenda);
-
-      const savedData = localStorage.getItem("borrowedBooks");
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        const updatedData = parsedData.map((item) => {
-          if (item.kodeTransaksi === data.kodeTransaksi) {
-            return {
-              ...item,
-              status: "Dikembalikan",
-              tglDikembalikan: tglInput,
-              denda: potentialDenda,
-              catatan: catatan,
-            };
-          }
-          return item;
+      try {
+        // Hit backend API to return book
+        const response = await BorrowingService.returnBook(data.id, {
+          return_date: tglInput
         });
-        localStorage.setItem("borrowedBooks", JSON.stringify(updatedData));
-      }
 
-      alert("Buku berhasil dikembalikan!");
+        if (response.success) {
+          setCurrentStatus("Dikembalikan");
+          setSavedDenda(potentialDenda);
+          alert("Buku berhasil dikembalikan!");
+          
+          // Navigate back to refresh data
+          setTimeout(() => {
+            navigate(-1);
+          }, 1000);
+        } else {
+          alert(response.message || "Gagal mengembalikan buku");
+        }
+      } catch (error) {
+        console.error("Error returning book:", error);
+        alert("Terjadi kesalahan saat mengembalikan buku");
+      }
     }
   };
 
@@ -182,7 +183,7 @@ const DetailPeminjaman = () => {
                 <p className="text-xs text-indigo-200 uppercase">
                   Nama Lengkap
                 </p>
-                <p className="text-lg font-semibold">{data.nama}</p>
+                <p className="text-lg font-semibold">{data.member_name || data.nama || "-"}</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -205,10 +206,12 @@ const DetailPeminjaman = () => {
               <BookOpen className="mt-1 text-white/70" />
               <div>
                 <p className="text-xs text-indigo-200 uppercase">Judul Buku</p>
-                <p className="text-lg font-semibold">{data.judul}</p>
-                <p className="text-sm text-white/60">ISBN: {data.isbn}</p>
+                <p className="text-lg font-semibold">{data.book_title || data.judul}</p>
                 <p className="text-sm text-white/60">
-                  Pengarang: {data.pengarang || "-"}
+                  Pengarang: {data.author || data.pengarang || "-"}
+                </p>
+                <p className="text-sm text-white/60">
+                  Kategori: {data.category || data.kategori || "-"}
                 </p>
               </div>
             </div>
@@ -225,7 +228,7 @@ const DetailPeminjaman = () => {
               <div>
                 <p className="text-xs text-indigo-200">Batas Waktu</p>
                 <p className="text-lg font-bold text-white">
-                  {data.tglKembali}
+                  {data.due_date || data.tglKembali}
                 </p>
               </div>
             </div>

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { BookService } from "../services/api";
 
 const DashboardMember = ({ userData, isLoading }) => {
   // Inisialisasi hook navigasi
   const navigate = useNavigate();
+  const [booksFromDB, setBooksFromDB] = useState([]);
+  const [loadingBooks, setLoadingBooks] = useState(true);
   
   const [searchTerm, setSearchTerm] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -32,6 +35,25 @@ const DashboardMember = ({ userData, isLoading }) => {
       subtext: "Dunia ada di dalam genggamanmu melalui membaca.",
     },
   ];
+
+  // Load books from database
+  useEffect(() => {
+    loadBooks();
+  }, []);
+
+  const loadBooks = async () => {
+    setLoadingBooks(true);
+    try {
+      const result = await BookService.getAll();
+      if (result.success && result.data.books) {
+        setBooksFromDB(result.data.books);
+      }
+    } catch (error) {
+      console.error("Error loading books:", error);
+    } finally {
+      setLoadingBooks(false);
+    }
+  };
 
   // --- LOGIC AUTO SLIDE ---
   useEffect(() => {
@@ -170,20 +192,25 @@ const DashboardMember = ({ userData, isLoading }) => {
     },
   ];
 
-  // LOGIC FILTERING
-  const filteredCategories = categories
-    .map((section) => {
-      const filteredItems = section.items.filter((item) => {
-        const query = searchTerm.toLowerCase();
-        return (
-          item.title.toLowerCase().includes(query) ||
-          item.author.toLowerCase().includes(query) ||
-          item.category.toLowerCase().includes(query)
-        );
-      });
-      return { ...section, items: filteredItems };
-    })
-    .filter((section) => section.items.length > 0);
+  // LOGIC FILTERING untuk books dari database
+  const filteredBooks = booksFromDB.filter((book) => {
+    const query = searchTerm.toLowerCase();
+    return (
+      book.title.toLowerCase().includes(query) ||
+      (book.author && book.author.toLowerCase().includes(query)) ||
+      (book.category && book.category.toLowerCase().includes(query))
+    );
+  });
+
+  // Get color for book card based on category
+  const getBookColor = (index) => {
+    const colors = [
+      "bg-blue-500", "bg-emerald-500", "bg-indigo-500", 
+      "bg-emerald-600", "bg-blue-600", "bg-purple-600",
+      "bg-red-500", "bg-yellow-500", "bg-sky-500", "bg-amber-600"
+    ];
+    return colors[index % colors.length];
+  };
 
   if (isLoading) {
     return (
@@ -253,64 +280,78 @@ const DashboardMember = ({ userData, isLoading }) => {
         </button>
       </div>
 
-      {/* Content Section */}
+      {/* Content Section - Books from Database */}
       <div className="space-y-14 pb-10">
-        {filteredCategories.length > 0 ? (
-          filteredCategories.map((section, index) => (
-            <section key={index}>
-              <h3 className="text-2xl font-extrabold uppercase mb-6 text-gray-900 tracking-wide flex items-center gap-2 drop-shadow-sm">
-                {section.sectionTitle}
-              </h3>
+        {loadingBooks ? (
+          <div className="text-center py-20">
+            <div className="animate-spin w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-gray-600">Memuat buku...</p>
+          </div>
+        ) : filteredBooks.length > 0 ? (
+          <section>
+            <h3 className="text-2xl font-extrabold uppercase mb-6 text-gray-900 tracking-wide flex items-center gap-2 drop-shadow-sm">
+              REKOMENDASI BUKU
+            </h3>
 
-              <div className="flex overflow-x-auto gap-6 pb-12 pt-2 hide-scrollbar px-2">
-                {section.items.map((item, idx) => (
+            <div className="flex overflow-x-auto gap-6 pb-12 pt-2 hide-scrollbar px-2">
+              {filteredBooks.map((book, idx) => (
+                <div
+                  key={book.id}
+                  onClick={() => navigate('/book-detail', { 
+                    state: {
+                      id: book.id,
+                      title: book.title,
+                      author: book.author || "Unknown",
+                      category: book.category || "General",
+                      stock: book.stock || 0,
+                      color: getBookColor(idx)
+                    }
+                  })}
+                  className="
+                    group relative h-[380px] min-w-[260px] w-[260px] flex-none 
+                    rounded-3xl overflow-hidden cursor-pointer transition-all duration-300
+                    bg-white/30 backdrop-blur-md shadow-lg
+                    border-2 border-white/60 
+                    hover:border-emerald-500 hover:shadow-2xl hover:shadow-emerald-500/20
+                    hover:-translate-y-2
+                  "
+                >
+                  {/* Layer 1: Cover */}
                   <div
-                    key={idx}
-                    // 3. TAMBAHKAN ONCLICK KE HALAMAN DETAIL
-                    onClick={() => navigate('/book-detail', { state: item })}
-                    className="
-                      group relative h-[380px] min-w-[260px] w-[260px] flex-none 
-                      rounded-3xl overflow-hidden cursor-pointer transition-all duration-300
-                      bg-white/30 backdrop-blur-md shadow-lg
-                      border-2 border-white/60 
-                      hover:border-emerald-500 hover:shadow-2xl hover:shadow-emerald-500/20
-                      hover:-translate-y-2
-                    "
+                    className={`absolute inset-0 ${getBookColor(idx)} flex items-center justify-center transition-transform duration-500 group-hover:scale-110`}
                   >
-                    {/* Layer 1: Cover */}
-                    <div
-                      className={`absolute inset-0 ${item.color} flex items-center justify-center transition-transform duration-500 group-hover:scale-110`}
-                    >
-                      <span className="text-white/30 text-5xl font-black uppercase -rotate-45 select-none transform scale-125">
-                        {item.category}
-                      </span>
-                    </div>
-
-                    {/* Layer 2: Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
-
-                    {/* Layer 3: Text */}
-                    <div className="absolute bottom-0 left-0 w-full p-6 text-left transform transition-transform duration-300 group-hover:translate-y-[-5px]">
-                      <span className="inline-block px-3 py-1 mb-3 text-[11px] font-bold uppercase tracking-wider text-white bg-white/20 backdrop-blur-md border border-white/40 rounded-full shadow-sm group-hover:bg-emerald-500 group-hover:border-emerald-500 transition-colors">
-                        {item.category}
-                      </span>
-                      <h4 className="text-2xl font-bold text-white leading-tight mb-1 line-clamp-2 drop-shadow-md">
-                        {item.title}
-                      </h4>
-                      <p className="text-sm text-gray-200 font-medium truncate opacity-90 group-hover:text-emerald-300 transition-colors">
-                        {item.author}
-                      </p>
-                    </div>
+                    <span className="text-white/30 text-5xl font-black uppercase -rotate-45 select-none transform scale-125">
+                      {book.category_name || "BUKU"}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </section>
-          ))
+
+                  {/* Layer 2: Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+
+                  {/* Layer 3: Text */}
+                  <div className="absolute bottom-0 left-0 w-full p-6 text-left transform transition-transform duration-300 group-hover:translate-y-[-5px]">
+                    <span className="inline-block px-3 py-1 mb-3 text-[11px] font-bold uppercase tracking-wider text-white bg-white/20 backdrop-blur-md border border-white/40 rounded-full shadow-sm group-hover:bg-emerald-500 group-hover:border-emerald-500 transition-colors">
+                      {book.category || "KATEGORI"}
+                    </span>
+                    <h4 className="text-2xl font-bold text-white leading-tight mb-1 line-clamp-2 drop-shadow-md">
+                      {book.title}
+                    </h4>
+                    <p className="text-sm text-gray-200 font-medium truncate opacity-90 group-hover:text-emerald-300 transition-colors">
+                      {book.author || "Unknown Author"}
+                    </p>
+                    <p className="text-xs text-emerald-300 font-semibold mt-2">
+                      Stock: {book.stock}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         ) : (
           <div className="text-center py-20 opacity-60">
             <Search size={48} className="mx-auto mb-4 text-emerald-600" />
             <p className="text-xl font-medium text-gray-700">
-              Tidak ditemukan buku "{searchTerm}"
+              {searchTerm ? `Tidak ditemukan buku "${searchTerm}"` : "Belum ada buku tersedia"}
             </p>
           </div>
         )}

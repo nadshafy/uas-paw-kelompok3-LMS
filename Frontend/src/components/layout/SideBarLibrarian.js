@@ -99,6 +99,28 @@ const SidebarLibrarian = ({ isSidebarOpen, toggleSidebar }) => {
         isActive: location.pathname === "/transaksi-denda",
         onNavigate: handleNavigate,
       })
+    ),
+
+    // Logout Button at bottom
+    React.createElement(
+      "div",
+      { className: "mt-auto pt-4 border-t border-white/20 pl-1 pr-1" },
+      React.createElement(
+        "button",
+        {
+          onClick: () => {
+            // CRITICAL: Clear all session data
+            localStorage.clear();
+            sessionStorage.clear();
+            navigate("/");
+          },
+          className: `flex items-center space-x-3 p-3 rounded-lg text-white transition-colors cursor-pointer hover:bg-red-900/50 ${
+            isSidebarOpen ? '' : 'justify-center'
+          }`
+        },
+        React.createElement(RotateCcw, { size: 20 }),
+        isSidebarOpen && React.createElement("span", { className: "font-medium" }, "Logout")
+      )
     )
   );
 };
