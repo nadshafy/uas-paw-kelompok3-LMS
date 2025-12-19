@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    container_name: lms_postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=lms-frand
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      # Pastikan folder ini mengarah ke tempat Dockerfile & setup.py berada
+      context: ../lms_backend/lms_api
+      dockerfile: Dockerfile
+    container_name: backend_lms
+    volumes:
+      # Volume untuk fitur auto-reload (kodingan lokal -> dalam container)
+      - ../lms_backend/lms_api:/app
+    ports:
+      - "6543:6543"
+    depends_on:
+      - db
+    environment:
+      # PENTING: Menggunakan host 'db' (bukan localhost) dan port internal 5432
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/lms-frand
