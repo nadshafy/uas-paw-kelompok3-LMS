@@ -44,7 +44,7 @@ const PeminjamanBuku = () => {
   const loadBooks = async () => {
     try {
       const response = await BookService.getAll();
-      setBooks(response.books || []);
+      setBooks(response.data?.books || []);
     } catch (error) {
       console.error("Failed to load books:", error);
     }
