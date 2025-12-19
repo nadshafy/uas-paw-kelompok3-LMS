@@ -7,74 +7,62 @@ import {
   ArrowLeft,
   Eye,
   User,
-  Phone,
-  Hash,
   BookOpen,
-  Layers,
   Calendar,
   FileText,
   Plus,
   X, 
 } from "lucide-react";
+import { BorrowingService, BookService, API_BASE_URL } from "../services/api";
 
 const PeminjamanBuku = () => {
   const navigate = useNavigate();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [books, setBooks] = useState([]);
 
   const [formData, setFormData] = useState({
-    nama: "",
-    noTelp: "",
-    isbn: "",
-    pengarang: "",
-    judul: "",
-    kategori: "",
-    tglPinjam: "",
-    tglKembali: "",
-    kodeTransaksi: "",
+    member_id: "",
+    book_id: "",
+    borrow_date: "",
+    due_date: "",
   });
 
-  const [loanData, setLoanData] = useState(() => {
-    const savedData = localStorage.getItem("borrowedBooks");
-    if (savedData) {
-      return JSON.parse(savedData);
-    } else {
-      // Data Dummy Awal (Jika localStorage kosong)
-      return [
-        {
-          id: 1,
-          kodeTransaksi: "TRX-1702025001",
-          nama: "Budi Santoso",
-          isbn: "978-6028519943",
-          judul: "Atomic Habits",
-          kategori: "Pengembangan Diri",
-          pengarang: "James Clear",
-          tglPinjam: "2025-12-10",
-          tglKembali: "2025-12-17",
-          noTelp: "08123456789",
-          status: "Dipinjam",
-        },
-        {
-          id: 2,
-          kodeTransaksi: "TRX-1702025002",
-          nama: "Siti Aminah",
-          isbn: "978-0743273565",
-          judul: "The Great Gatsby",
-          kategori: "Fiksi",
-          pengarang: "F. Scott Fitzgerald",
-          tglPinjam: "2025-12-11",
-          tglKembali: "2025-12-18",
-          noTelp: "08987654321",
-          status: "Dikembalikan",
-        },
-      ];
-    }
-  });
-
+  const [loanData, setLoanData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Load data from backend API
   useEffect(() => {
-    localStorage.setItem("borrowedBooks", JSON.stringify(loanData));
-  }, [loanData]);
+    loadBorrowings();
+    loadBooks();
+  }, []);
+
+  const loadBorrowings = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/borrowings`);
+      const data = await response.json();
+      
+      if (data.borrowings) {
+        setLoanData(data.borrowings);
+      }
+    } catch (error) {
+      console.error("Error loading borrowings:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadBooks = async () => {
+    try {
+      const result = await BookService.getAll();
+      if (result.success) {
+        setBooks(result.data.books);
+      }
+    } catch (error) {
+      console.error("Error loading books:", error);
+    }
+  };
 
   // --- HANDLERS ---
 
@@ -83,51 +71,76 @@ const PeminjamanBuku = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.judul || !formData.isbn || !formData.nama) {
-      alert("Mohon lengkapi Nama Peminjam, Judul, dan ISBN!");
+    if (!formData.member_id || !formData.book_id || !formData.borrow_date || !formData.due_date) {
+      alert("Semua field wajib diisi!");
       return;
     }
 
-    const newLoan = {
-      id: Date.now(),
-      kodeTransaksi: formData.kodeTransaksi || `TRX-${Date.now()}`,
-      nama: formData.nama,
-      noTelp: formData.noTelp || "-",
-      isbn: formData.isbn,
-      judul: formData.judul,
-      kategori: formData.kategori || "-",
-      pengarang: formData.pengarang || "-",
-      tglPinjam: formData.tglPinjam || new Date().toISOString().split("T")[0],
-      tglKembali: formData.tglKembali || "-",
-      status: "Dipinjam",
-    };
+    try {
+      const response = await BorrowingService.create({
+        member_id: parseInt(formData.member_id),
+        book_id: parseInt(formData.book_id),
+        borrow_date: formData.borrow_date,
+        due_date: formData.due_date,
+      });
 
-    setLoanData([newLoan, ...loanData]);
-
-    setFormData({
-      nama: "",
-      noTelp: "",
-      isbn: "",
-      pengarang: "",
-      judul: "",
-      kategori: "",
-      tglPinjam: "",
-      tglKembali: "",
-      kodeTransaksi: "",
-    });
-
-    setIsFormOpen(false);
-    alert("Transaksi Peminjaman Berhasil Disimpan!");
+      if (response.success) {
+        alert("Data peminjaman berhasil ditambahkan!");
+        setIsFormOpen(false);
+        setFormData({
+          member_id: "",
+          book_id: "",
+          borrow_date: "",
+          due_date: "",
+        });
+        loadBorrowings(); // Reload data
+      } else {
+        alert(response.message || "Gagal menambahkan peminjaman");
+      }
+    } catch (error) {
+      console.error("Error creating borrowing:", error);
+      alert("Terjadi kesalahan saat menambahkan peminjaman");
+    }
   };
 
-  const handleDelete = (idToDelete) => {
+  const handleDelete = async (idToDelete) => {
     if (
       window.confirm("Apakah Anda yakin ingin menghapus data transaksi ini?")
     ) {
-      setLoanData(loanData.filter((item) => item.id !== idToDelete));
+      try {
+        const response = await BorrowingService.delete(idToDelete);
+        if (response.success) {
+          alert("Data berhasil dihapus!");
+          loadBorrowings(); // Reload data
+        } else {
+          alert(response.message || "Gagal menghapus data");
+        }
+      } catch (error) {
+        console.error("Error deleting borrowing:", error);
+        alert("Terjadi kesalahan saat menghapus data");
+      }
+    }
+  };
+
+  const handleReturn = async (id) => {
+    if (window.confirm("Tandai buku sebagai dikembalikan?")) {
+      try {
+        const response = await BorrowingService.returnBook(id, {
+          return_date: new Date().toISOString().split('T')[0]
+        });
+        if (response.success) {
+          alert("Buku berhasil dikembalikan!");
+          loadBorrowings(); // Reload data
+        } else {
+          alert(response.message || "Gagal mengembalikan buku");
+        }
+      } catch (error) {
+        console.error("Error returning book:", error);
+        alert("Terjadi kesalahan saat mengembalikan buku");
+      }
     }
   };
 
@@ -137,10 +150,10 @@ const PeminjamanBuku = () => {
 
   const filteredData = loanData.filter(
     (item) =>
-      item.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.kodeTransaksi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.isbn.includes(searchTerm)
+      (item.book_title && item.book_title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.member_name && item.member_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.id && item.id.toString().includes(searchTerm)) ||
+      (item.borrow_date && item.borrow_date.includes(searchTerm))
   );
 
   return (
@@ -191,6 +204,7 @@ const PeminjamanBuku = () => {
             <div className="space-y-2">
               <label className="text-white font-medium ml-1">
                 Nama Peminjam
+                Member ID
               </label>
               <div className="relative group">
                 <User
@@ -198,12 +212,12 @@ const PeminjamanBuku = () => {
                   size={20}
                 />
                 <input
-                  type="text"
-                  name="nama"
-                  value={formData.nama}
+                  type="number"
+                  name="member_id"
+                  value={formData.member_id}
                   onChange={handleInputChange}
                   className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white transition-all"
-                  placeholder="Nama Lengkap Anggota"
+                  placeholder="ID Anggota"
                   required
                 />
               </div>
@@ -211,95 +225,27 @@ const PeminjamanBuku = () => {
 
             <div className="space-y-2">
               <label className="text-white font-medium ml-1">
-                Nomor Telepon
+                Buku
               </label>
-              <div className="relative group">
-                <Phone
-                  className="absolute left-4 top-3.5 text-white/70"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  name="noTelp"
-                  value={formData.noTelp}
-                  onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white transition-all"
-                  placeholder="08xxxxxxxx"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-white font-medium ml-1">ISBN</label>
-              <div className="relative group">
-                <Hash
-                  className="absolute left-4 top-3.5 text-white/70"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  name="isbn"
-                  value={formData.isbn}
-                  onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white transition-all"
-                  placeholder="Scan / Ketik ISBN"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-white font-medium ml-1">Pengarang</label>
-              <div className="relative group">
-                <User
-                  className="absolute left-4 top-3.5 text-white/70"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  name="pengarang"
-                  value={formData.pengarang}
-                  onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white transition-all"
-                  placeholder="Nama Pengarang"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-white font-medium ml-1">Judul Buku</label>
               <div className="relative group">
                 <BookOpen
                   className="absolute left-4 top-3.5 text-white/70"
                   size={20}
                 />
-                <input
-                  type="text"
-                  name="judul"
-                  value={formData.judul}
+                <select
+                  name="book_id"
+                  value={formData.book_id}
                   onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white transition-all"
-                  placeholder="Judul Buku"
+                  className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:bg-white/20 focus:border-white transition-all"
                   required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-white font-medium ml-1">Kategori</label>
-              <div className="relative group">
-                <Layers
-                  className="absolute left-4 top-3.5 text-white/70"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  name="kategori"
-                  value={formData.kategori}
-                  onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white transition-all"
-                  placeholder="Fiksi / Sains / dll"
-                />
+                >
+                  <option value="" className="bg-gray-800">Pilih Buku</option>
+                  {books.map((book) => (
+                    <option key={book.id} value={book.id} className="bg-gray-800">
+                      {book.title} (Stock: {book.stock})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -314,17 +260,18 @@ const PeminjamanBuku = () => {
                 />
                 <input
                   type="date"
-                  name="tglPinjam"
-                  value={formData.tglPinjam}
+                  name="borrow_date"
+                  value={formData.borrow_date}
                   onChange={handleInputChange}
                   className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white transition-all [color-scheme:dark]"
+                  required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <label className="text-white font-medium ml-1">
-                Tanggal Pengembalian
+                Tanggal Jatuh Tempo
               </label>
               <div className="relative group">
                 <Calendar
@@ -333,10 +280,11 @@ const PeminjamanBuku = () => {
                 />
                 <input
                   type="date"
-                  name="tglKembali"
-                  value={formData.tglKembali}
+                  name="due_date"
+                  value={formData.due_date}
                   onChange={handleInputChange}
                   className="w-full bg-white/10 border border-white/30 rounded-xl py-3 pl-12 pr-4 text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white transition-all [color-scheme:dark]"
+                  required
                 />
               </div>
             </div>
@@ -408,7 +356,13 @@ const PeminjamanBuku = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredData.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                    Loading...
+                  </td>
+                </tr>
+              ) : filteredData.length > 0 ? (
                 filteredData.map((item, index) => (
                   <tr
                     key={item.id}
@@ -416,28 +370,28 @@ const PeminjamanBuku = () => {
                   >
                     <td className="px-6 py-4 font-medium">{index + 1}</td>
                     <td className="px-6 py-4 font-mono text-xs text-blue-600 font-bold bg-blue-50 w-fit rounded-md px-2 py-1">
-                      {item.kodeTransaksi}
+                      TRX-{item.id}
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-800">
-                      {item.nama}
+                      {item.member_name || `Member #${item.member_id}`}
                     </td>
                     <td className="px-6 py-4 text-gray-800 italic">
-                      {item.judul}
+                      {item.book_title || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-gray-600 font-medium">
-                      {item.tglPinjam}
+                      {item.borrow_date}
                     </td>
 
                     {/* KOLOM STATUS */}
                     <td className="px-6 py-4">
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
-                          item.status === "Dikembalikan"
+                          item.return_date
                             ? "bg-green-100 text-green-700 border border-green-200"
                             : "bg-yellow-100 text-yellow-700 border border-yellow-200"
                         }`}
                       >
-                        {item.status}
+                        {item.return_date ? "Dikembalikan" : "Dipinjam"}
                       </span>
                     </td>
 
@@ -450,6 +404,16 @@ const PeminjamanBuku = () => {
                         >
                           <Eye size={18} />
                         </button>
+
+                        {!item.return_date && (
+                          <button
+                            onClick={() => handleReturn(item.id)}
+                            className="p-2 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors shadow-sm"
+                            title="Kembalikan Buku"
+                          >
+                            <Save size={18} />
+                          </button>
+                        )}
 
                         <button
                           onClick={() => handleDelete(item.id)}
@@ -481,3 +445,4 @@ const PeminjamanBuku = () => {
 };
 
 export default PeminjamanBuku;
+ 

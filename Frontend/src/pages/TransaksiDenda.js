@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
+=======
+// Import Service dari file api kamu
+import { BorrowingService } from "../services/api"; 
+>>>>>>> backend_update
 import {
   ArrowLeft,
   Search,
@@ -15,6 +20,7 @@ const TransaksiDenda = () => {
   const navigate = useNavigate();
   const [dendaData, setDendaData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+<<<<<<< HEAD
 
   useEffect(() => {
     const savedData = localStorage.getItem("borrowedBooks");
@@ -32,11 +38,43 @@ const TransaksiDenda = () => {
   }, []);
 
   // 2. HITUNG TOTAL NOMINAL DENDA (Statistik Ringan)
+=======
+  const [loading, setLoading] = useState(true); // Opsional: untuk status loading
+
+  // 1. AMBIL DATA DARI BACKEND
+  useEffect(() => {
+    fetchDendaData();
+  }, []);
+
+  const fetchDendaData = async () => {
+    setLoading(true);
+    // Mengambil semua data peminjaman
+    const response = await BorrowingService.getAll();
+    
+    if (response.success) {
+      // Filter data yang hanya memiliki denda > 0
+      // Catatan: Sesuaikan field 'denda' dengan key yang dikirim backend (misal: item.denda atau item.fine)
+      const onlyDenda = response.data.borrowings.filter(
+        (item) => item.denda && item.denda > 0
+      );
+
+      // Urutkan berdasarkan ID terbaru
+      const sortedData = onlyDenda.sort((a, b) => b.id - a.id);
+      setDendaData(sortedData);
+    } else {
+      console.error("Gagal mengambil data denda:", response.error);
+    }
+    setLoading(false);
+  };
+
+  // 2. HITUNG TOTAL NOMINAL DENDA
+>>>>>>> backend_update
   const totalNominal = dendaData.reduce(
     (acc, curr) => acc + (parseInt(curr.denda) || 0),
     0
   );
 
+<<<<<<< HEAD
   // 3. FITUR HAPUS
   const handleDelete = (id) => {
     if (
@@ -60,6 +98,32 @@ const TransaksiDenda = () => {
       item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.kodeTransaksi.toLowerCase().includes(searchTerm.toLowerCase())
+=======
+  // 3. FITUR HAPUS (Koneksi ke Backend)
+  const handleDelete = async (id) => {
+    if (
+      window.confirm(
+        "Hapus riwayat denda ini? Data peminjaman di database juga akan terhapus."
+      )
+    ) {
+      const response = await BorrowingService.delete(id);
+      
+      if (response.success) {
+        // Update state lokal setelah berhasil hapus di server
+        setDendaData(dendaData.filter((item) => item.id !== id));
+      } else {
+        alert("Gagal menghapus data: " + response.error);
+      }
+    }
+  };
+
+  // 4. FILTER PENCARIAN (Tetap dilakukan di sisi frontend untuk kecepatan)
+  const filteredData = dendaData.filter(
+    (item) =>
+      (item.user_name || item.nama || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.book_title || item.judul || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.id.toString()).includes(searchTerm)
+>>>>>>> backend_update
   );
 
   return (
@@ -67,7 +131,11 @@ const TransaksiDenda = () => {
       {/* --- HEADER --- */}
       <div className="flex items-center gap-4">
         <button
+<<<<<<< HEAD
           onClick={() => window.history.back()}
+=======
+          onClick={() => navigate(-1)}
+>>>>>>> backend_update
           className="p-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl hover:bg-white/30 transition-all text-white"
         >
           <ArrowLeft size={24} />
@@ -77,7 +145,11 @@ const TransaksiDenda = () => {
             Riwayat Denda
           </h1>
           <p className="text-white/80 text-sm mt-1">
+<<<<<<< HEAD
             Daftar anggota yang terkena sanksi keterlambatan
+=======
+            Daftar anggota yang terkena sanksi keterlambatan (Backend Connected)
+>>>>>>> backend_update
           </p>
         </div>
       </div>
@@ -118,7 +190,11 @@ const TransaksiDenda = () => {
           />
           <input
             type="text"
+<<<<<<< HEAD
             placeholder="Cari Nama, Judul, atau Kode TRX..."
+=======
+            placeholder="Cari Nama, Judul, atau ID Transaksi..."
+>>>>>>> backend_update
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white/10 backdrop-blur-md text-white placeholder-white/70 border border-white/30 rounded-xl py-3 pl-10 pr-4 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all outline-none"
@@ -140,7 +216,15 @@ const TransaksiDenda = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
+<<<<<<< HEAD
               {filteredData.length > 0 ? (
+=======
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-12 text-center">Loading data...</td>
+                </tr>
+              ) : filteredData.length > 0 ? (
+>>>>>>> backend_update
                 filteredData.map((item, index) => (
                   <tr
                     key={item.id}
@@ -149,23 +233,41 @@ const TransaksiDenda = () => {
                     <td className="px-6 py-4 font-medium">{index + 1}</td>
 
                     <td className="px-6 py-4">
+<<<<<<< HEAD
                       <p className="font-bold text-gray-800">{item.nama}</p>
                       <p className="text-xs text-blue-500 font-mono">
                         {item.kodeTransaksi}
+=======
+                      {/* Menggunakan user_name dari backend atau nama dari state lama */}
+                      <p className="font-bold text-gray-800">{item.user_name || item.nama}</p>
+                      <p className="text-xs text-blue-500 font-mono">
+                        TRX-{item.id}
+>>>>>>> backend_update
                       </p>
                     </td>
 
                     <td className="px-6 py-4 text-gray-700 italic">
+<<<<<<< HEAD
                       {item.judul}
+=======
+                      {item.book_title || item.judul}
+>>>>>>> backend_update
                     </td>
 
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="text-xs text-gray-400">
+<<<<<<< HEAD
                           Batas: {item.tglKembali}
                         </span>
                         <span className="font-bold text-gray-800">
                           Aktual: {item.tglDikembalikan || "-"}
+=======
+                          Batas: {item.due_date || item.tglKembali}
+                        </span>
+                        <span className="font-bold text-gray-800">
+                          Aktual: {item.return_date || item.tglDikembalikan || "-"}
+>>>>>>> backend_update
                         </span>
                       </div>
                     </td>
@@ -178,7 +280,11 @@ const TransaksiDenda = () => {
                     </td>
 
                     <td className="px-6 py-4 text-xs text-gray-500 max-w-xs truncate">
+<<<<<<< HEAD
                       {item.catatan || "-"}
+=======
+                      {item.status === 'overdue' ? "Terlambat" : (item.catatan || "-")}
+>>>>>>> backend_update
                     </td>
 
                     <td className="px-6 py-4 text-center">
@@ -228,4 +334,8 @@ const TransaksiDenda = () => {
   );
 };
 
+<<<<<<< HEAD
 export default TransaksiDenda;
+=======
+export default TransaksiDenda;
+>>>>>>> backend_update

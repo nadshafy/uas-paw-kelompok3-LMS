@@ -9,6 +9,7 @@ import {
   Search,
   LogOut,
 } from "lucide-react";
+<<<<<<< HEAD
 
 const simulatedBookData = [
   {
@@ -82,6 +83,9 @@ const simulatedBookData = [
     category: "Filosofi",
   },
 ];
+=======
+import { BookService, CategoryService, API_BASE_URL } from "../services/api";
+>>>>>>> backend_update
 
 const DashboardLibrarian = () => {
   const navigate = useNavigate();
@@ -96,6 +100,7 @@ const DashboardLibrarian = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
+<<<<<<< HEAD
   const categories = [
     "All",
     "Fiksi",
@@ -105,6 +110,11 @@ const DashboardLibrarian = () => {
     "Pengembangan Diri",
   ];
   const [filteredBooks, setFilteredBooks] = useState(simulatedBookData);
+=======
+  const [categories, setCategories] = useState(["All"]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [books, setBooks] = useState([]);
+>>>>>>> backend_update
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -121,6 +131,7 @@ const DashboardLibrarian = () => {
       email: userEmail || "librarian@library.com",
     });
 
+<<<<<<< HEAD
     setTimeout(() => {
       setStats({
         totalBooks: 1250,
@@ -134,6 +145,51 @@ const DashboardLibrarian = () => {
 
   useEffect(() => {
     let results = simulatedBookData;
+=======
+    // Load data from API
+    loadDashboardData();
+    loadBooks();
+    loadCategories();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/dashboard/librarian`);
+      const data = await response.json();
+      
+      if (data.dashboard) {
+        setStats({
+          totalBooks: data.dashboard.books.total || 0,
+          totalMembers: data.dashboard.users.total_members || 0,
+          activeBorrows: data.dashboard.borrowings.active || 0,
+          overdueBooks: data.dashboard.borrowings.late || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadBooks = async () => {
+    const result = await BookService.getAll(searchQuery, filterCategory);
+    if (result.success) {
+      setBooks(result.data.books);
+      setFilteredBooks(result.data.books.slice(0, 10)); // Show first 10
+    }
+  };
+
+  const loadCategories = async () => {
+    const result = await CategoryService.getAll();
+    if (result.success) {
+      setCategories(["All", ...result.data.categories]);
+    }
+  };
+
+  useEffect(() => {
+    let results = books.slice(0, 10); // Limit to 10 for dashboard
+>>>>>>> backend_update
 
     if (filterCategory !== "all") {
       results = results.filter(
@@ -146,13 +202,21 @@ const DashboardLibrarian = () => {
       results = results.filter(
         (book) =>
           book.title.toLowerCase().includes(query) ||
+<<<<<<< HEAD
           book.author.toLowerCase().includes(query) ||
           book.isbn.includes(query)
+=======
+          book.author.toLowerCase().includes(query)
+>>>>>>> backend_update
       );
     }
 
     setFilteredBooks(results);
+<<<<<<< HEAD
   }, [searchQuery, filterCategory]);
+=======
+  }, [searchQuery, filterCategory, books]);
+>>>>>>> backend_update
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -187,6 +251,37 @@ const DashboardLibrarian = () => {
 
   return (
     <div className="min-h-screen p-8 space-y-8 font-['Poppins'] bg-gradient-to-br from-indigo-900 via-blue-500 to-amber-400">
+<<<<<<< HEAD
+=======
+      {/* HEADER WITH LOGOUT */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl">
+            <Book size={32} className="text-white" />
+          </div>
+          <div className="text-white">
+            <h1 className="text-2xl font-bold drop-shadow-md">
+              Perpustakaan FRAND
+            </h1>
+            <p className="text-sm opacity-90">Dashboard Librarian</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="text-right hidden md:block text-white">
+            <p className="text-sm font-semibold">{userData?.name}</p>
+            <p className="text-xs opacity-80">{userData?.email}</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all shadow-lg font-semibold"
+          >
+            <LogOut size={18} />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+      </div>
+>>>>>>> backend_update
 
       {/* WELCOME SECTION */}
       <div className="relative overflow-hidden rounded-3xl p-8 bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl">
@@ -318,7 +413,10 @@ const DashboardLibrarian = () => {
           <thead className="bg-gray-100 text-gray-800 uppercase font-bold border-b border-gray-200">
             <tr>
               <th className="px-6 py-4">No</th>
+<<<<<<< HEAD
               <th className="px-6 py-4">ISBN</th>
+=======
+>>>>>>> backend_update
               <th className="px-6 py-4">Nama Buku</th>
               <th className="px-6 py-4">Penulis</th>
               <th className="px-6 py-4">Kategori</th>
@@ -326,6 +424,7 @@ const DashboardLibrarian = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredBooks.length > 0 ? (
+<<<<<<< HEAD
               filteredBooks.map((book) => (
                 <tr
                   key={book.isbn}
@@ -335,6 +434,14 @@ const DashboardLibrarian = () => {
                   <td className="px-6 py-4 font-mono text-xs text-black-1000">
                     {book.isbn}
                   </td>
+=======
+              filteredBooks.map((book, index) => (
+                <tr
+                  key={book.id}
+                  className="hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <td className="px-6 py-4 font-medium">{index + 1}</td>
+>>>>>>> backend_update
                   <td className="px-6 py-4 text-gray-800">{book.title}</td>
                   <td className="px-6 py-4">{book.author}</td>
                   <td className="px-6 py-4">
@@ -361,4 +468,8 @@ const DashboardLibrarian = () => {
   );
 };
 
+<<<<<<< HEAD
 export default DashboardLibrarian;
+=======
+export default DashboardLibrarian;
+>>>>>>> backend_update

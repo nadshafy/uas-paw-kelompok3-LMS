@@ -39,7 +39,11 @@ function App() {
         />
 
         {/* 3. Detail Buku Member (BARU DITAMBAHKAN) */}
+<<<<<<< HEAD
         <Route path="/book-detail" element={<BookDetail />} />
+=======
+        <Route path="/book-detail/:id" element={<BookDetail />} />
+>>>>>>> backend_update
 
 
 
