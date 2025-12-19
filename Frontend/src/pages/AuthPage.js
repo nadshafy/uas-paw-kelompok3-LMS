@@ -70,95 +70,21 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      if (currentPage === "login") {
-        // LOGIN - Call backend API
-        console.log("Calling login API...");
-        const response = await fetch("http://localhost:6543/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }).catch(err => {
-          console.error("Network error:", err);
-          throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
-        });
+      setTimeout(() => {
+        localStorage.setItem("token", "dummy-token-" + Date.now());
+        localStorage.setItem("userName", formData.name || "User");
+        localStorage.setItem("userEmail", formData.email);
+        localStorage.setItem("userRole", formData.role);
 
-        console.log("Response status:", response.status);
-        const data = await response.json();
-        console.log("Response data:", data);
-
-        if (!response.ok) {
-          alert(data.error || "Login gagal");
-          setIsLoading(false);
-          return;
-        }
-
-        // Save to localStorage from backend response
-        localStorage.setItem("token", "token-" + data.user.id);
-        localStorage.setItem("userName", data.user.name);
-        localStorage.setItem("userEmail", data.user.email);
-        localStorage.setItem("userRole", data.user.role);
-
-        console.log("Login success, redirecting to:", data.user.role === "librarian" ? "librarian" : "member");
-
-        // Redirect based on role from backend
-        if (data.user.role === "librarian") {
+        if (formData.role === "librarian") {
           navigate("/dashboard-librarian");
         } else {
           navigate("/dashboard-member");
         }
-      } else {
-        // SIGNUP - Call backend API
-        console.log("Calling register API...");
-        const response = await fetch("http://localhost:6543/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            role: formData.role,
-          }),
-        }).catch(err => {
-          console.error("Network error:", err);
-          throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
-        });
 
-        console.log("Response status:", response.status);
-        const data = await response.json();
-        console.log("Response data:", data);
-
-        if (!response.ok) {
-          alert(data.error || "Register gagal");
-          setIsLoading(false);
-          return;
-        }
-
-        // Auto login after signup
-        localStorage.setItem("token", "token-" + data.user.id);
-        localStorage.setItem("userName", data.user.name);
-        localStorage.setItem("userEmail", data.user.email);
-        localStorage.setItem("userRole", data.user.role);
-
-        console.log("Register success, redirecting to:", data.user.role === "librarian" ? "librarian" : "member");
-
-        // Redirect based on role from backend
-        if (data.user.role === "librarian") {
-          navigate("/dashboard-librarian");
-        } else {
-          navigate("/dashboard-member");
-        }
-      }
-
-      setIsLoading(false);
+        setIsLoading(false);
+      }, 1500);
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
       alert("Error: " + error.message);
       setIsLoading(false);
     }
