@@ -1,5 +1,5 @@
 import React from "react";
-import { Book, TrendingUp, Plus, List, RotateCcw } from "lucide-react";
+import { Book, TrendingUp, Plus, List } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const NavItem = ({

@@ -1,5 +1,5 @@
 import React from "react";
-import { User, List, LogOut, BookOpen } from "lucide-react";
+import { User, List, BookOpen } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const NavItem = ({ icon, label, path, isActive, onClick }) => {

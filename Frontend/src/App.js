@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import DashboardMember from "./pages/DashboardMember";
 import DashboardLibrarian from "./pages/DashboardLibrarian";
@@ -39,13 +39,7 @@ function App() {
         />
 
         {/* 3. Detail Buku Member (BARU DITAMBAHKAN) */}
-<<<<<<< HEAD
-        <Route path="/book-detail" element={<BookDetail />} />
-=======
         <Route path="/book-detail/:id" element={<BookDetail />} />
->>>>>>> backend_update
-
-
 
         {/* 1. Dashboard Librarian */}
         <Route
@@ -96,6 +90,10 @@ function App() {
             </DashboardLayout>
           }
         />
+
+        {/* --- REDIRECTS FOR OLD ROUTES --- */}
+        <Route path="/DashboardLibrarian" element={<Navigate to="/dashboard-librarian" replace />} />
+        <Route path="/DashboardMember" element={<Navigate to="/dashboard-member" replace />} />
 
         {/* --- DEFAULT / LOGIN --- */}
         <Route path="/" element={<AuthPage />} />

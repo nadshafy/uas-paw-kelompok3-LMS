@@ -80,7 +80,7 @@ def get_borrowing_detail(request):
 
 @view_config(route_name="api_borrowings", request_method="POST", renderer="json")
 def create_borrowing(request):
-    """Membuat peminjaman buku baru (due date otomatis +3 hari)"""
+    """Membuat peminjaman buku baru dengan tanggal kembali yang bisa ditentukan"""
     data = request.json_body
 
     db = request.dbsession
@@ -101,8 +101,25 @@ def create_borrowing(request):
         request.response.status = 400
         return {"error": "Buku tidak tersedia untuk dipinjam"}
 
-    borrow_date = date.today()
-    due_date = borrow_date + timedelta(days=3)
+    # Allow custom borrow_date and due_date from request, or use defaults
+    borrow_date_str = data.get("borrow_date")
+    due_date_str = data.get("due_date")
+    
+    if borrow_date_str:
+        try:
+            borrow_date = datetime.strptime(borrow_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            borrow_date = date.today()
+    else:
+        borrow_date = date.today()
+    
+    if due_date_str:
+        try:
+            due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            due_date = borrow_date + timedelta(days=7)
+    else:
+        due_date = borrow_date + timedelta(days=7)
 
     borrowing = Borrowing(
         member_id=member_id,

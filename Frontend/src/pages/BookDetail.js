@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, BookOpen, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, X } from "lucide-react";
 import { BookService, BorrowingService } from "../services/api";
 
 const BookDetail = () => {
@@ -10,8 +10,18 @@ const BookDetail = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showBorrowForm, setShowBorrowForm] = useState(false);
+  const [borrowDate, setBorrowDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
 
   useEffect(() => {
+    // Set default dates
+    const today = new Date();
+    setBorrowDate(today.toISOString().split('T')[0]);
+    const defaultDue = new Date(today);
+    defaultDue.setDate(today.getDate() + 7); // Default 7 days
+    setDueDate(defaultDue.toISOString().split('T')[0]);
+
     const fetchBook = async () => {
       const result = await BookService.getById(id);
 
@@ -59,9 +69,15 @@ const BookDetail = () => {
 
   const isAvailable = book.stock > 0;
 
-  const handleBorrow = async () => {
+  const handleBorrowClick = () => {
+    setShowBorrowForm(true);
+  };
+
+  const handleConfirmBorrow = async () => {
     const result = await BorrowingService.create({
       book_id: book.id,
+      borrow_date: borrowDate,
+      due_date: dueDate,
     });
 
     if (!result.success) {
@@ -69,8 +85,8 @@ const BookDetail = () => {
       return;
     }
 
-    alert(`Berhasil meminjam buku "${book.title}"`);
-    navigate("/DashboardMember");
+    alert(`Berhasil meminjam buku "${book.title}" sampai ${dueDate}`);
+    navigate("/dashboard-member");
   };
 
   return (
@@ -155,23 +171,89 @@ const BookDetail = () => {
           </div>
 
           <div className="space-y-4 pt-4">
-            <button
-              className={`w-full py-4 text-lg font-bold text-white rounded-2xl shadow-xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 ${
-                isAvailable
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
-              disabled={!isAvailable}
-              onClick={handleBorrow}
-            >
-              <BookOpen size={24} />
-              PINJAM BUKU INI
-            </button>
+            {!showBorrowForm ? (
+              <>
+                <button
+                  className={`w-full py-4 text-lg font-bold text-white rounded-2xl shadow-xl transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 ${
+                    isAvailable
+                      ? "bg-gradient-to-r from-emerald-600 to-teal-600"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
+                  disabled={!isAvailable}
+                  onClick={handleBorrowClick}
+                >
+                  <BookOpen size={24} />
+                  PINJAM BUKU INI
+                </button>
 
-            {!isAvailable && (
-              <p className="text-center text-red-500 font-medium bg-red-100/50 py-2 rounded-lg">
-                Maaf, stok buku ini sedang kosong atau sudah dipinjam semua.
-              </p>
+                {!isAvailable && (
+                  <p className="text-center text-red-500 font-medium bg-red-100/50 py-2 rounded-lg">
+                    Maaf, stok buku ini sedang kosong atau sudah dipinjam semua.
+                  </p>
+                )}
+              </>
+            ) : (
+              <div className="bg-white/60 backdrop-blur-md border-2 border-emerald-200 rounded-2xl p-6 shadow-xl">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">Konfirmasi Peminjaman</h3>
+                  <button
+                    onClick={() => setShowBorrowForm(false)}
+                    className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                  >
+                    <X size={20} className="text-red-600" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <Calendar size={16} className="inline mr-2" />
+                      Tanggal Pinjam
+                    </label>
+                    <input
+                      type="date"
+                      value={borrowDate}
+                      onChange={(e) => setBorrowDate(e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-emerald-200 rounded-xl focus:outline-none focus:border-emerald-500 bg-white [color-scheme:light]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <Calendar size={16} className="inline mr-2" />
+                      Tanggal Harus Kembali
+                    </label>
+                    <input
+                      type="date"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      min={borrowDate}
+                      className="w-full px-4 py-3 border-2 border-emerald-200 rounded-xl focus:outline-none focus:border-emerald-500 bg-white [color-scheme:light]"
+                    />
+                  </div>
+
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                    <p className="text-sm text-emerald-800">
+                      <strong>Catatan:</strong> Keterlambatan pengembalian akan dikenakan denda Rp 1.000 per hari.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={() => setShowBorrowForm(false)}
+                      className="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition-colors"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={handleConfirmBorrow}
+                      className="flex-1 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg"
+                    >
+                      Konfirmasi Pinjam
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>

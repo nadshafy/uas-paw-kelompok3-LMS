@@ -102,7 +102,6 @@ const DashboardLayout = ({ children, sidebar }) => {
   const toggleProfileMenu = () => setIsProfileMenuOpen((prev) => !prev);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const userName = localStorage.getItem("userName");
     const userEmail = localStorage.getItem("userEmail");
     const userRole = localStorage.getItem("role") || "librarian"; 

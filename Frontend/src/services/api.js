@@ -146,9 +146,11 @@ export const BorrowingService = {
   },
 };
 
-export default {
+const ApiServices = {
   AuthService,
   BookService,
   CategoryService,
   BorrowingService,
 };
+
+export default ApiServices;

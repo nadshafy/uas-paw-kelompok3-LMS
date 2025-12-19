@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { BookOpen } from "lucide-react";
 import LoginForm from "../components/auth/LoginForm";
 import SignUpForm from "../components/auth/SignUpForm";
 
@@ -23,11 +23,7 @@ const AuthPage = () => {
 
     if (token && role) {
       if (role === "librarian") {
-<<<<<<< HEAD
         navigate("/dashboard-librarian");
-=======
-        navigate("/dashboard-librarian"); 
->>>>>>> backend_update
       } else {
         navigate("/dashboard-member");
       }
@@ -42,26 +38,26 @@ const AuthPage = () => {
     const newErrors = {};
 
     if (currentPage === "signup" && !formData.name.trim()) {
-      newErrors.name = "Name is required";
+      newErrors.name = "Nama wajib diisi";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = "Email wajib diisi";
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = "Format email tidak valid";
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = "Password wajib diisi";
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = "Password minimal 6 karakter";
     }
 
     if (
       currentPage === "signup" &&
       formData.password !== formData.confirmPassword
     ) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = "Password tidak cocok";
     }
 
     setErrors(newErrors);
@@ -74,18 +70,7 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-<<<<<<< HEAD:Frontend/src/pages/AuthPage.js
-<<<<<<< HEAD
-      setTimeout(() => {
-        localStorage.setItem("token", "dummy-token-" + Date.now());
-        localStorage.setItem("userName", formData.name || "User");
-        localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("userRole", formData.role);
-
-        if (formData.role === "librarian") {
-=======
       if (currentPage === "login") {
-        // LOGIN - Call backend API
         console.log("Calling login API...");
         const response = await fetch("http://localhost:6543/api/auth/login", {
           method: "POST",
@@ -101,25 +86,6 @@ const AuthPage = () => {
           throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
         });
 
-=======
-      if (currentPage === "login") {
-        // LOGIN - Call backend API
-        console.log("Calling login API...");
-        const response = await fetch("http://localhost:6543/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }).catch(err => {
-          console.error("Network error:", err);
-          throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
-        });
-
->>>>>>> origin/backend:lms_03/src/pages/AuthPage.js
         console.log("Response status:", response.status);
         const data = await response.json();
         console.log("Response data:", data);
@@ -130,7 +96,6 @@ const AuthPage = () => {
           return;
         }
 
-        // Save to localStorage from backend response
         localStorage.setItem("token", "token-" + data.user.id);
         localStorage.setItem("userName", data.user.name);
         localStorage.setItem("userEmail", data.user.email);
@@ -138,71 +103,13 @@ const AuthPage = () => {
 
         console.log("Login success, redirecting to:", data.user.role === "librarian" ? "librarian" : "member");
 
-        // Redirect based on role from backend
-        if (data.user.role === "librarian") {
-<<<<<<< HEAD:Frontend/src/pages/AuthPage.js
->>>>>>> backend_update
-=======
->>>>>>> origin/backend:lms_03/src/pages/AuthPage.js
-          navigate("/dashboard-librarian");
-        } else {
-          navigate("/dashboard-member");
-        }
-<<<<<<< HEAD:Frontend/src/pages/AuthPage.js
-<<<<<<< HEAD
-=======
-      } else {
-        // SIGNUP - Call backend API
-        console.log("Calling register API...");
-        const response = await fetch("http://localhost:6543/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            role: formData.role,
-          }),
-        }).catch(err => {
-          console.error("Network error:", err);
-          throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
-        });
->>>>>>> origin/backend:lms_03/src/pages/AuthPage.js
-
-        console.log("Response status:", response.status);
-        const data = await response.json();
-        console.log("Response data:", data);
-
-        if (!response.ok) {
-          alert(data.error || "Register gagal");
-          setIsLoading(false);
-          return;
-        }
-
-        // Auto login after signup
-        localStorage.setItem("token", "token-" + data.user.id);
-        localStorage.setItem("userName", data.user.name);
-        localStorage.setItem("userEmail", data.user.email);
-        localStorage.setItem("userRole", data.user.role);
-
-        console.log("Register success, redirecting to:", data.user.role === "librarian" ? "librarian" : "member");
-
-        // Redirect based on role from backend
         if (data.user.role === "librarian") {
           navigate("/dashboard-librarian");
         } else {
           navigate("/dashboard-member");
         }
-      }
 
-      setIsLoading(false);
-    } catch (error) {
-<<<<<<< HEAD:Frontend/src/pages/AuthPage.js
-=======
       } else {
-        // SIGNUP - Call backend API
         console.log("Calling register API...");
         const response = await fetch("http://localhost:6543/api/auth/register", {
           method: "POST",
@@ -230,7 +137,6 @@ const AuthPage = () => {
           return;
         }
 
-        // Auto login after signup
         localStorage.setItem("token", "token-" + data.user.id);
         localStorage.setItem("userName", data.user.name);
         localStorage.setItem("userEmail", data.user.email);
@@ -238,7 +144,6 @@ const AuthPage = () => {
 
         console.log("Register success, redirecting to:", data.user.role === "librarian" ? "librarian" : "member");
 
-        // Redirect based on role from backend
         if (data.user.role === "librarian") {
           navigate("/dashboard-librarian");
         } else {
@@ -249,10 +154,6 @@ const AuthPage = () => {
       setIsLoading(false);
     } catch (error) {
       console.error("Error in handleSubmit:", error);
->>>>>>> backend_update
-=======
-      console.error("Error in handleSubmit:", error);
->>>>>>> origin/backend:lms_03/src/pages/AuthPage.js
       alert("Error: " + error.message);
       setIsLoading(false);
     }
@@ -282,7 +183,6 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 via-blue-500 to-amber-400 font-['Poppins']">
       <div className="w-full max-w-md">
-        {/* Logo & Title */}
         <div className="text-center mb-8 text-white">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mb-4 shadow-xl border border-white/30">
             <BookOpen size={40} className="text-white" />
@@ -297,13 +197,7 @@ const AuthPage = () => {
           </p>
         </div>
 
-<<<<<<< HEAD
         <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-3xl p-10 shadow-2xl">
-=======
-        {/* Auth Card - Glass Effect */}
-        <div className="bg-white/20 backdrop-blur-md border border-white/30 rounded-3xl p-10 shadow-2xl">
-          {/* Tabs */}
->>>>>>> backend_update
           <div className="flex mb-8 bg-white/10 rounded-2xl p-1">
             <button
               onClick={() => switchPage("login")}
@@ -327,10 +221,6 @@ const AuthPage = () => {
             </button>
           </div>
 
-<<<<<<< HEAD
-=======
-          {/* Forms */}
->>>>>>> backend_update
           {currentPage === "login" ? (
             <LoginForm
               formData={formData}
@@ -350,10 +240,6 @@ const AuthPage = () => {
           )}
         </div>
 
-<<<<<<< HEAD
-=======
-        {/* Footer */}
->>>>>>> backend_update
         <p className="text-center mt-6 text-white text-sm opacity-80 font-medium">
           UAS PAW - Library Management System
         </p>
@@ -362,8 +248,4 @@ const AuthPage = () => {
   );
 };
 
-<<<<<<< HEAD
 export default AuthPage;
-=======
-export default AuthPage;
->>>>>>> backend_update

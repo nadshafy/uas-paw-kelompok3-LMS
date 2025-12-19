@@ -33,16 +33,15 @@ const LoginForm = ({
       />
 
       <div className="text-right mb-6">
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
+        <button
+          type="button"
+          onClick={() => {
             alert("Password reset feature coming soon!");
           }}
-          className="text-white text-xs font-medium hover:text-amber-100 transition-colors"
+          className="text-white text-xs font-medium hover:text-amber-100 transition-colors bg-transparent border-none cursor-pointer"
         >
           Forgot Password?
-        </a>
+        </button>
       </div>
 
       <button
