@@ -4,6 +4,16 @@ import { BookOpen } from "lucide-react";
 import LoginForm from "../components/auth/LoginForm";
 import SignUpForm from "../components/auth/SignUpForm";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+
+const API_ENDPOINTS = {
+  AUTH: {
+    REGISTER: `${API_BASE_URL}/auth/register`,
+    LOGIN: `${API_BASE_URL}/auth/login`,
+  },
+};
+
 const AuthPage = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState("login");
@@ -22,17 +32,16 @@ const AuthPage = () => {
     const role = localStorage.getItem("userRole");
 
     if (token && role) {
-      if (role === "librarian") {
-        navigate("/dashboard-librarian");
-      } else {
-        navigate("/dashboard-member");
-      }
+      navigate(
+        role === "librarian"
+          ? "/dashboard-librarian"
+          : "/dashboard-member"
+      );
     }
   }, [navigate]);
 
-  const validateEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validateForm = () => {
     const newErrors = {};
@@ -66,95 +75,54 @@ const AuthPage = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-
     setIsLoading(true);
 
     try {
-      if (currentPage === "login") {
-        console.log("Calling login API...");
-        const response = await fetch("http://localhost:6543/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }).catch(err => {
-          console.error("Network error:", err);
-          throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
-        });
+      const endpoint =
+        currentPage === "login"
+          ? API_ENDPOINTS.AUTH.LOGIN
+          : API_ENDPOINTS.AUTH.REGISTER;
 
-        console.log("Response status:", response.status);
-        const data = await response.json();
-        console.log("Response data:", data);
+      const payload =
+        currentPage === "login"
+          ? {
+              email: formData.email,
+              password: formData.password,
+            }
+          : {
+              name: formData.name,
+              email: formData.email,
+              password: formData.password,
+              role: formData.role,
+            };
 
-        if (!response.ok) {
-          alert(data.error || "Login gagal");
-          setIsLoading(false);
-          return;
-        }
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-        localStorage.setItem("token", "token-" + data.user.id);
-        localStorage.setItem("userName", data.user.name);
-        localStorage.setItem("userEmail", data.user.email);
-        localStorage.setItem("userRole", data.user.role);
+      const data = await response.json();
 
-        console.log("Login success, redirecting to:", data.user.role === "librarian" ? "librarian" : "member");
-
-        if (data.user.role === "librarian") {
-          navigate("/dashboard-librarian");
-        } else {
-          navigate("/dashboard-member");
-        }
-
-      } else {
-        console.log("Calling register API...");
-        const response = await fetch("http://localhost:6543/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            role: formData.role,
-          }),
-        }).catch(err => {
-          console.error("Network error:", err);
-          throw new Error("Tidak dapat terhubung ke server. Pastikan backend berjalan di http://localhost:6543");
-        });
-
-        console.log("Response status:", response.status);
-        const data = await response.json();
-        console.log("Response data:", data);
-
-        if (!response.ok) {
-          alert(data.error || "Register gagal");
-          setIsLoading(false);
-          return;
-        }
-
-        localStorage.setItem("token", "token-" + data.user.id);
-        localStorage.setItem("userName", data.user.name);
-        localStorage.setItem("userEmail", data.user.email);
-        localStorage.setItem("userRole", data.user.role);
-
-        console.log("Register success, redirecting to:", data.user.role === "librarian" ? "librarian" : "member");
-
-        if (data.user.role === "librarian") {
-          navigate("/dashboard-librarian");
-        } else {
-          navigate("/dashboard-member");
-        }
+      if (!response.ok) {
+        alert(data.error || "Autentikasi gagal");
+        setIsLoading(false);
+        return;
       }
 
-      setIsLoading(false);
+      localStorage.setItem("token", "token-" + data.user.id);
+      localStorage.setItem("userName", data.user.name);
+      localStorage.setItem("userEmail", data.user.email);
+      localStorage.setItem("userRole", data.user.role);
+
+      navigate(
+        data.user.role === "librarian"
+          ? "/dashboard-librarian"
+          : "/dashboard-member"
+      );
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
-      alert("Error: " + error.message);
+      alert(error.message);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -162,7 +130,6 @@ const AuthPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
