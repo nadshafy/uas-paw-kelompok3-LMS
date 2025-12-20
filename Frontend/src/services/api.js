@@ -1,10 +1,8 @@
 // API Configuration untuk LMS Frontend
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL;
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
   
-console.log("MODE:", import.meta.env.MODE);
-console.log("VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
-console.log("API_BASE_URL:", import.meta.env.VITE_API_BASE_URL || "FALLBACK_USED");
+console.log("REACT_APP_API_BASE_URL:", process.env.REACT_APP_API_BASE_URL);
 
 // API Endpoints
 export const API_ENDPOINTS = {
